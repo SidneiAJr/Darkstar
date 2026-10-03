@@ -45,8 +45,7 @@ darkstar new meu-projeto
 ```
 
 O CLI vai perguntar:
-- Qual banco de dados? (MySQL · PostgreSQL · SQLite)
-- Qual ORM? (DarkStar ORM · TypeORM · Prisma)
+- Qual banco de dados? (MySQL · PostgreSQL)
 - Usar autenticação JWT? (sim/não)
 
 Estrutura gerada:
@@ -60,10 +59,12 @@ meu-projeto/
 │   ├── models/
 │   ├── routes/
 │   └── core/
-│       └── app.ts        # núcleo da aplicação
+│       └── app.ts
 ├── database/
 │   ├── migrations/
 │   └── seeders/
+│       ├── Seeder.ts
+│       └── DatabaseSeeder.ts
 ├── .env
 ├── darkstar.config.ts
 └── package.json
@@ -73,29 +74,23 @@ meu-projeto/
 
 ## CLI — DarkStar Forge
 
-### Subir o servidor
+### Referência rápida de comandos
 
-```bash
-darkstar serve
-```
-
-### Gerar arquivos
-
-```bash
-darkstar forge make:controller User   # cria UserController com métodos básicos
-darkstar forge make:model User        # cria User model + migration
-darkstar forge make:service User      # cria UserService
-darkstar forge make:repository User   # cria UserRepository
-darkstar forge make:api User          # gera controller + service + repository + rotas CRUD completas
-```
-
-### Banco de dados
-
-```bash
-darkstar forge db:migrate             # roda as migrations pendentes
-darkstar forge db:rollback            # desfaz a última migration
-darkstar forge db:seed                # popula o banco com seeders
-```
+| Comando | Descrição |
+|---|---|
+| `darkstar new <nome>` | Cria um novo projeto |
+| `darkstar serve` | Sobe o servidor de desenvolvimento |
+| `darkstar forge make:api <Nome>` | Gera controller + service + repository + model + rotas CRUD |
+| `darkstar forge make:controller <Nome>` | Gera um Controller |
+| `darkstar forge make:service <Nome>` | Gera um Service |
+| `darkstar forge make:repository <Nome>` | Gera um Repository |
+| `darkstar forge make:model <Nome>` | Gera um Model |
+| `darkstar forge make:migration <Nome>` | Gera uma Migration |
+| `darkstar forge make:seeder <Nome>` | Gera um Seeder |
+| `darkstar forge db:create` | Cria o banco de dados |
+| `darkstar forge db:migrate` | Roda as migrations pendentes |
+| `darkstar forge db:rollback` | Desfaz a última migration |
+| `darkstar forge db:seed` | Popula o banco com seeders |
 
 ---
 
@@ -105,35 +100,36 @@ Um único comando `darkstar forge make:api User` gera toda a cadeia MVC:
 
 **`UserController.ts`**
 ```typescript
-import { Request, Response } from 'darkstar'
+import { DarkstarRequest, DarkstarResponse } from '@darkstar/core'
 import { UserService } from '../services/UserService'
 
 export class UserController {
   constructor(private userService: UserService) {}
 
-  async index(req: Request, res: Response) {
-    const users = await this.userService.findAll()
-    return res.json(users)
+  async index(req: DarkstarRequest, res: DarkstarResponse) {
+    const data = await this.userService.findAll()
+    return res.ok(data)
   }
 
-  async show(req: Request, res: Response) {
-    const user = await this.userService.findById(req.params.id)
-    return res.json(user)
+  async show(req: DarkstarRequest, res: DarkstarResponse) {
+    const data = await this.userService.findById(req.param('id')!)
+    if (!data) return res.notFound('User não encontrado')
+    return res.ok(data)
   }
 
-  async store(req: Request, res: Response) {
-    const user = await this.userService.create(req.body)
-    return res.status(201).json(user)
+  async store(req: DarkstarRequest, res: DarkstarResponse) {
+    const data = await this.userService.create(req.all())
+    return res.created(data)
   }
 
-  async update(req: Request, res: Response) {
-    const user = await this.userService.update(req.params.id, req.body)
-    return res.json(user)
+  async update(req: DarkstarRequest, res: DarkstarResponse) {
+    const data = await this.userService.update(req.param('id')!, req.all())
+    return res.ok(data)
   }
 
-  async destroy(req: Request, res: Response) {
-    await this.userService.delete(req.params.id)
-    return res.status(204).send()
+  async destroy(req: DarkstarRequest, res: DarkstarResponse) {
+    await this.userService.delete(req.param('id')!)
+    return res.noContent()
   }
 }
 ```
@@ -145,11 +141,11 @@ import { UserRepository } from '../repositories/UserRepository'
 export class UserService {
   constructor(private userRepository: UserRepository) {}
 
-  findAll()                        { return this.userRepository.findAll() }
-  findById(id: string)             { return this.userRepository.findById(id) }
-  create(data: any)                { return this.userRepository.create(data) }
-  update(id: string, data: any)    { return this.userRepository.update(id, data) }
-  delete(id: string)               { return this.userRepository.delete(id) }
+  findAll()                                     { return this.userRepository.findAll() }
+  findById(id: string)                          { return this.userRepository.findById(id) }
+  create(data: Record<string, any>)             { return this.userRepository.create(data) }
+  update(id: string, data: Record<string, any>) { return this.userRepository.update(id, data) }
+  delete(id: string)                            { return this.userRepository.delete(id) }
 }
 ```
 
