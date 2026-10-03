@@ -20,13 +20,14 @@ function copyTemplate(src: string, dest: string) {
   const entries = fs.readdirSync(src, { withFileTypes: true })
 
   for (const entry of entries) {
+    if (entry.name.endsWith('.stub')) continue  // ← ignora stubs
+
     const srcPath  = path.join(src, entry.name)
     const destPath = path.join(dest, entry.name)
 
     if (entry.isDirectory()) {
       copyTemplate(srcPath, destPath)
     } else {
-      // renomeia tanis.config.ts para darkstar.config.ts
       const destName = entry.name === 'tanis.config.ts' ? 'darkstar.config.ts' : entry.name
       fs.copyFileSync(srcPath, path.join(dest, destName))
     }

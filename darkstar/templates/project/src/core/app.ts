@@ -1,4 +1,4 @@
-import { TanisApp } from '@tanis/core'
+import { TanisApp } from '@darkstar/core'
 
 const app = new TanisApp()
 
