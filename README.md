@@ -1,22 +1,22 @@
 > [!WARNING]
-> 🚧 O Darkstar está em desenvolvimento ativo. Não use em produção — APIs podem mudar sem aviso.
+> 🚧 O DarkStar está em desenvolvimento ativo. Não use em produção — APIs podem mudar sem aviso.
 
 
-# 🪐 Darkstar  — Backend Framework for Node.js
+# 🪐 DarkStar — Backend Framework for Node.js
 
-> *"Forjado no vácuo. Construído para durar"*
+> *"Forjado no vácuo. Construído para durar."*
 
-> Inspirado na elegância do Laravel — reimaginado para o universo Node.js.
+> Inspirado na elegância do **Laravel** — reimaginado para o universo **Node.js**.
 
 ---
 
-## Por que o Darkstar existe?
+## Por que o DarkStar existe?
 
 Sou fã de PHP. Primeira vez que vi o Laravel bati a cabeça e não entendi nada — mas quando entendi, pensei: *"isso é brilhante"*.
 
 O NestJS tenta trazer essa experiência pro Node, mas na prática é verboso, cheio de decoradores e difícil de ler. O Express puro é flexível demais — você acaba construindo a mesma estrutura do zero em todo projeto.
 
-O **Tanis** nasceu pra resolver isso: um framework Node.js com a clareza e produtividade do Laravel, sem a bagunça do ecossistema.
+O **DarkStar** nasceu pra resolver isso: um framework Node.js com a clareza e produtividade do Laravel, sem a bagunça do ecossistema.
 
 ---
 
@@ -25,7 +25,7 @@ O **Tanis** nasceu pra resolver isso: um framework Node.js com a clareza e produ
 - **Convenção sobre configuração** — estrutura pronta, sem decisão desnecessária
 - **MVC como cidadão de primeira classe** — Controller → Service → Repository é o padrão, não uma opinião
 - **CLI que faz o trabalho pesado** — uma linha de comando gera toda a camada
-- **Dependências centralizadas** — você atualiza o Tanis, não 40 pacotes separados
+- **Dependências centralizadas** — você atualiza o DarkStar, não 40 pacotes separados
 - **ORM expressivo** — query builder fluido estilo Eloquent, não decoradores
 
 ---
@@ -33,7 +33,7 @@ O **Tanis** nasceu pra resolver isso: um framework Node.js com a clareza e produ
 ## Instalação
 
 ```bash
-npm install -g tanis-cli
+npm install -g darkstar
 ```
 
 ---
@@ -41,12 +41,12 @@ npm install -g tanis-cli
 ## Criando um projeto
 
 ```bash
-tanis new meu-projeto
+darkstar new meu-projeto
 ```
 
 O CLI vai perguntar:
 - Qual banco de dados? (MySQL · PostgreSQL · SQLite)
-- Qual ORM? (Tanis ORM · TypeORM · Prisma)
+- Qual ORM? (DarkStar ORM · TypeORM · Prisma)
 - Usar autenticação JWT? (sim/não)
 
 Estrutura gerada:
@@ -65,47 +65,47 @@ meu-projeto/
 │   ├── migrations/
 │   └── seeders/
 ├── .env
-├── tanis.config.ts
+├── darkstar.config.ts
 └── package.json
 ```
 
 ---
 
-## CLI — Tanis Artisan
+## CLI — DarkStar Forge
 
 ### Subir o servidor
 
 ```bash
-tanis serve
+darkstar serve
 ```
 
 ### Gerar arquivos
 
 ```bash
-tanis artisan make:controller User   # cria UserController com métodos básicos
-tanis artisan make:model User        # cria User model + migration
-tanis artisan make:service User      # cria UserService
-tanis artisan make:repository User   # cria UserRepository
-tanis artisan make:api User          # gera controller + service + repository + rotas CRUD completas
+darkstar forge make:controller User   # cria UserController com métodos básicos
+darkstar forge make:model User        # cria User model + migration
+darkstar forge make:service User      # cria UserService
+darkstar forge make:repository User   # cria UserRepository
+darkstar forge make:api User          # gera controller + service + repository + rotas CRUD completas
 ```
 
 ### Banco de dados
 
 ```bash
-tanis artisan db:migrate             # roda as migrations pendentes
-tanis artisan db:rollback            # desfaz a última migration
-tanis artisan db:seed                # popula o banco com seeders
+darkstar forge db:migrate             # roda as migrations pendentes
+darkstar forge db:rollback            # desfaz a última migration
+darkstar forge db:seed                # popula o banco com seeders
 ```
 
 ---
 
 ## Estrutura gerada pelo `make:api`
 
-Um único comando `tanis artisan make:api User` gera toda a cadeia MVC:
+Um único comando `darkstar forge make:api User` gera toda a cadeia MVC:
 
 **`UserController.ts`**
 ```typescript
-import { Request, Response } from 'tanis'
+import { Request, Response } from 'darkstar'
 import { UserService } from '../services/UserService'
 
 export class UserController {
@@ -145,11 +145,11 @@ import { UserRepository } from '../repositories/UserRepository'
 export class UserService {
   constructor(private userRepository: UserRepository) {}
 
-  findAll()             { return this.userRepository.findAll() }
-  findById(id: string)  { return this.userRepository.findById(id) }
-  create(data: any)     { return this.userRepository.create(data) }
-  update(id: string, data: any) { return this.userRepository.update(id, data) }
-  delete(id: string)    { return this.userRepository.delete(id) }
+  findAll()                        { return this.userRepository.findAll() }
+  findById(id: string)             { return this.userRepository.findById(id) }
+  create(data: any)                { return this.userRepository.create(data) }
+  update(id: string, data: any)    { return this.userRepository.update(id, data) }
+  delete(id: string)               { return this.userRepository.delete(id) }
 }
 ```
 
@@ -195,7 +195,7 @@ await User.where('id', 1).delete()
 ## Inspirações
 
 - **Laravel** — pela elegância e produtividade
-- **Pandorum** — pelo nome e pela ideia de um novo lar
+- **Pandorum** — pela ideia de forjar algo novo no vácuo do espaço
 - **Constellation CLI** — projeto anterior do autor, mesmo espírito de automatizar o que é repetitivo
 
 ---
