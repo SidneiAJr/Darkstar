@@ -5,6 +5,7 @@
 # 🪐 Darkstar  — Backend Framework for Node.js
 
 > *"Forjado no vácuo. Construído para durar"*
+
 > Inspirado na elegância do Laravel — reimaginado para o universo Node.js.
 
 ---
