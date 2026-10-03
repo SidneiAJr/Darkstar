@@ -1,5 +1,8 @@
 # 🪐 Tanis — Backend Framework for Node.js
 
+> [!WARNING]
+> 🚧 O Tanis está em desenvolvimento ativo. Não use em produção — APIs podem mudar sem aviso.
+
 > *"O lar da humanidade. O lar do dev."*
 > Inspirado no planeta Tanis do filme **Pandorum** — e na elegância do **Laravel**.
 
