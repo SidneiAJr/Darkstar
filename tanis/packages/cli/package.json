@@ -1,16 +1,16 @@
 {
-  "name": "@tanis/cli",
+  "name": "@darkstar/cli",
   "version": "1.0.0",
   "main": "dist/index.js",
   "bin": {
-    "tanis": "dist/index.js"
+    "darkstar": "dist/index.js"
   },
   "scripts": {
     "build": "tsc --build"
   },
   "dependencies": {
-    "@tanis/orm": "*",
-    "@tanis/core": "*",
+    "@darkstar/orm": "*",
+    "@darkstar/core": "*",
     "commander": "^15.0.0",
     "inquirer": "^14.2.2",
     "kleur": "^4.1.5"
