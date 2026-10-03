@@ -47,13 +47,13 @@ export class Model {
     return this.query<T>().create(data)
   }
 
-  static async update<T extends typeof Model>(
-    this: T,
-    id: number | string,
-    data: Partial<InstanceType<T>>
-  ): Promise<number> {
-    return this.query<T>().where('id', id).update(data)
-  }
+ static async update<T extends typeof Model>(
+  this: T,
+  id: number | string,
+  data: Partial<InstanceType<T>>
+): Promise<InstanceType<T> | null> {
+  return this.query<T>().where('id', id).update(data) as Promise<InstanceType<T> | null>
+}
 
   static async delete<T extends typeof Model>(
     this: T,

@@ -48,7 +48,7 @@ class TanisApp {
   private errorHandler() {
     this.app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
       const isDev = process.env.APP_ENV === 'local' || process.env.APP_DEBUG === 'true'
-      console.error(kleur.red(`[Tanis Error] ${err.message}`))
+      console.error(kleur.red(`[DarkStar Error] ${err.message}`))
       res.status(500).json({
         error: true,
         message: err.message,
@@ -69,7 +69,7 @@ class TanisApp {
   listen() {
     const port = Number(process.env.APP_PORT) || 3000
     const env  = process.env.APP_ENV  || 'local'
-    const name = process.env.APP_NAME || 'Tanis'
+    const name = process.env.APP_NAME || 'DarkStar'
 
     this.app.listen(port, () => {
       console.log('')

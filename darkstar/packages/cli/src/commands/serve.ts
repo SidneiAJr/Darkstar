@@ -5,7 +5,7 @@ function info(msg: string)  { console.log(kleur.cyan('  → ') + msg) }
 function error(msg: string) { console.log(kleur.red('  ✘ ') + msg) }
 
 export function runServe() {
-  info('Iniciando servidor Tanis...')
+  info('Iniciando servidor Darkstar...')
   try {
     execSync('npm run dev', { stdio: 'inherit' })
   } catch {

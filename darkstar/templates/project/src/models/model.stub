@@ -1,0 +1,5 @@
+import { Model } from '@darkstar/orm'
+
+export class {{name}} extends Model {
+  static table = '{{tableName}}'
+}

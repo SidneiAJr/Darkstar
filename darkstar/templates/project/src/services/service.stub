@@ -1,0 +1,11 @@
+import { {{name}}Repository } from '../repositories/{{name}}Repository'
+
+export class {{name}}Service {
+  constructor(private {{nameLower}}Repository: {{name}}Repository) {}
+
+  findAll()                                     { return this.{{nameLower}}Repository.findAll() }
+  findById(id: string)                          { return this.{{nameLower}}Repository.findById(id) }
+  create(data: Record<string, any>)             { return this.{{nameLower}}Repository.create(data) }
+  update(id: string, data: Record<string, any>) { return this.{{nameLower}}Repository.update(id, data) }
+  delete(id: string)                            { return this.{{nameLower}}Repository.delete(id) }
+}

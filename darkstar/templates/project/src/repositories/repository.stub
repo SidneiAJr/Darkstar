@@ -1,0 +1,9 @@
+import { {{name}} } from '../models/{{name}}'
+
+export class {{name}}Repository {
+  findAll()                                     { return {{name}}.findAll() }
+  findById(id: string)                          { return {{name}}.findById(id) }
+  create(data: Record<string, any>)             { return {{name}}.create(data as any) }
+  update(id: string, data: Record<string, any>) { return {{name}}.update(id, data as any) }
+  delete(id: string)                            { return {{name}}.delete(id) }
+}
