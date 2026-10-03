@@ -1,0 +1,102 @@
+#!/usr/bin/env node
+
+import { program } from 'commander'
+import { runNew }         from './commands/new'
+import { runServe }       from './commands/serve'
+import { makeController } from './commands/forge/make-controller'
+import { makeService }    from './commands/forge/make-service'
+import { makeRepository } from './commands/forge/make-repository'
+import { makeModel }      from './commands/forge/make-model'
+import { makeApi }        from './commands/forge/make-api'
+import { dbMigrate }      from './commands/forge/db-migrate'
+import { dbSeed }         from './commands/forge/db-seed'
+import { makeMigration }  from './commands/forge/make-migration'
+import { dbCreate }       from './commands/forge/db-create'
+import { dbRollback }     from './commands/forge/db-rollback'
+
+// -----------------------------------------------
+// Configuração do programa
+// -----------------------------------------------
+
+program
+  .name('darkstar')
+  .description('DarkStar — Backend Framework for Node.js')
+  .version('1.0.0')
+
+// -----------------------------------------------
+// darkstar new <name>
+// -----------------------------------------------
+
+program
+  .command('new <name>')
+  .description('Cria um novo projeto DarkStar')
+  .action((name: string) => runNew(name))
+
+// -----------------------------------------------
+// darkstar serve
+// -----------------------------------------------
+
+program
+  .command('serve')
+  .description('Sobe o servidor de desenvolvimento')
+  .action(() => runServe())
+
+// -----------------------------------------------
+// darkstar forge
+// -----------------------------------------------
+
+const forge = program
+  .command('forge')
+  .description('DarkStar Forge — gerador de arquivos e banco de dados')
+
+forge
+  .command('make:controller <name>')
+  .description('Cria um Controller')
+  .action((name: string) => makeController(name))
+
+forge
+  .command('make:service <name>')
+  .description('Cria um Service')
+  .action((name: string) => makeService(name))
+
+forge
+  .command('make:repository <name>')
+  .description('Cria um Repository')
+  .action((name: string) => makeRepository(name))
+
+forge
+  .command('make:model <name>')
+  .description('Cria um Model')
+  .action((name: string) => makeModel(name))
+
+forge
+  .command('make:api <name>')
+  .description('Gera Controller + Service + Repository + Model + Rotas')
+  .action((name: string) => makeApi(name))
+
+forge
+  .command('db:migrate')
+  .description('Roda as migrations pendentes')
+  .action(() => dbMigrate())
+
+forge
+  .command('db:seed')
+  .description('Popula o banco com seeders')
+  .action(() => dbSeed())
+
+forge
+  .command('make:migration <name>')
+  .description('Cria uma nova migration')
+  .action((name: string) => makeMigration(name))
+
+forge
+  .command('db:create')
+  .description('Cria o banco de dados')
+  .action(() => dbCreate())
+
+forge
+  .command('db:rollback')
+  .description('Desfaz a última migration')
+  .action(() => dbRollback())
+
+program.parse(process.argv)
