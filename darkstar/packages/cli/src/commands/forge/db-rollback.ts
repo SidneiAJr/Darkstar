@@ -13,10 +13,11 @@ export async function dbRollback() {
   try {
     await Connection.connect()
     const driver = Connection.get()
+    const db = driver.type()
 
     // 1. Pega a última migration executada
     const { rows } = await driver.query<{ name: string }>(
-      `SELECT name FROM tanis_migrations ORDER BY id DESC LIMIT 1`
+      `SELECT name FROM darkstar_migrations ORDER BY id DESC LIMIT 1`
     )
 
     if (rows.length === 0) {
@@ -42,10 +43,11 @@ export async function dbRollback() {
     await migration.down(driver)
 
     // 3. Remove o registro da tabela de controle
-    await driver.query(
-      `DELETE FROM tanis_migrations WHERE name = ?`,
-      [last]
-    )
+    const sql = db === 'postgres'
+      ? `DELETE FROM darkstar_migrations WHERE name = $1`
+      : `DELETE FROM darkstar_migrations WHERE name = ?`
+
+    await driver.query(sql, [last])
 
     await Connection.disconnect()
     console.log('')

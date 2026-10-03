@@ -20,7 +20,7 @@ function copyTemplate(src: string, dest: string) {
   const entries = fs.readdirSync(src, { withFileTypes: true })
 
   for (const entry of entries) {
-    if (entry.name.endsWith('.stub')) continue  // ← ignora stubs
+    if (entry.name.endsWith('.stub')) continue
 
     const srcPath  = path.join(src, entry.name)
     const destPath = path.join(dest, entry.name)
@@ -45,35 +45,25 @@ function configureEnv(projectPath: string, db: string) {
   if (db === 'mysql') {
     env = env.replace(/^DB_PORT=.*/m, 'DB_PORT=3306')
     env = env.replace(/^DB_DATABASE=.*/m, 'DB_DATABASE=darkstar')
-  } else if (db === 'postgres') {
+  } else {
     env = env.replace(/^DB_PORT=.*/m, 'DB_PORT=5432')
     env = env.replace(/^DB_DATABASE=.*/m, 'DB_DATABASE=darkstar')
-  } else {
-    env = env.replace(/^DB_PORT=.*/m, 'DB_PORT=')
-    env = env.replace(/^DB_DATABASE=.*/m, 'DB_DATABASE=database.sqlite')
   }
 
   fs.writeFileSync(envPath, env, 'utf-8')
   fs.copyFileSync(envPath, path.join(projectPath, '.env'))
 }
 
-function configurePackageJson(projectPath: string, projectName: string, orm: string) {
+function configurePackageJson(projectPath: string, projectName: string) {
   const pkgPath = path.join(projectPath, 'package.json')
-
   const monorepoRoot = path.resolve(__dirname, '../../../../')
 
   const deps: Record<string, string> = {
     '@darkstar/core': `file:${path.join(monorepoRoot, 'packages/core').replace(/\\/g, '/')}`,
-    'dotenv':      '^16.0.0',
-    'express':     '^5.2.1',
-    'zod':         '^4.6.5',
-  }
-
-  if (orm === 'typeorm') {
-    deps['typeorm']          = '^0.3.0'
-    deps['reflect-metadata'] = '^0.2.0'
-  } else {
-    deps['@darkstar/orm'] = `file:${path.join(monorepoRoot, 'packages/orm').replace(/\\/g, '/')}`
+    '@darkstar/orm':  `file:${path.join(monorepoRoot, 'packages/orm').replace(/\\/g, '/')}`,
+    'dotenv':         'latest',
+    'express':        'latest',
+    'zod':            'latest',
   }
 
   const pkg = {
@@ -88,10 +78,10 @@ function configurePackageJson(projectPath: string, projectName: string, orm: str
     },
     dependencies: deps,
     devDependencies: {
-      '@types/express': '^5.0.6',
-      '@types/node':    '^26.0.0',
-      'ts-node':        '^10.9.2',
-      'typescript':     '^6.0.0',
+      '@types/express': 'latest',
+      '@types/node':    'latest',
+      'ts-node':        'latest',
+      'typescript':     'latest',
     },
   }
 
@@ -119,18 +109,8 @@ export async function runNew(name: string) {
       name: 'db',
       message: 'Qual banco de dados?',
       choices: [
-        { name: 'SQLite  (zero config, ideal pra dev)', value: 'sqlite'   },
-        { name: 'MySQL',                                value: 'mysql'    },
-        { name: 'PostgreSQL',                           value: 'postgres' },
-      ],
-    },
-    {
-      type: 'select',
-      name: 'orm',
-      message: 'Qual ORM?',
-      choices: [
-        { name: 'DarkStar ORM  (estilo Eloquent, nativo)', value: 'darkstar' },
-        { name: 'TypeORM',                                 value: 'typeorm'  },
+        { name: 'MySQL',      value: 'mysql'    },
+        { name: 'PostgreSQL', value: 'postgres' },
       ],
     },
   ])
@@ -155,7 +135,7 @@ export async function runNew(name: string) {
   success('.env configurado')
 
   info('Configurando package.json...')
-  configurePackageJson(projectPath, name, answers.orm)
+  configurePackageJson(projectPath, name)
   success('package.json configurado')
 
   installDeps(projectPath)

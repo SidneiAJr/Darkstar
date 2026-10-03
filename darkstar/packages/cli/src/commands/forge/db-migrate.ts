@@ -17,13 +17,13 @@ export async function dbMigrate() {
     const db = driver.type()
 
     // 1. Garante que a tabela de controle existe
-    const createTableSQL = db === 'sqlite'
-      ? `CREATE TABLE IF NOT EXISTS tanis_migrations (
-          id      INTEGER PRIMARY KEY AUTOINCREMENT,
-          name    TEXT NOT NULL UNIQUE,
-          ran_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+    const createTableSQL = db === 'postgres'
+      ? `CREATE TABLE IF NOT EXISTS darkstar_migrations (
+          id      SERIAL PRIMARY KEY,
+          name    VARCHAR(255) NOT NULL UNIQUE,
+          ran_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`
-      : `CREATE TABLE IF NOT EXISTS tanis_migrations (
+      : `CREATE TABLE IF NOT EXISTS darkstar_migrations (
           id      INT AUTO_INCREMENT PRIMARY KEY,
           name    VARCHAR(255) NOT NULL UNIQUE,
           ran_at  DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -33,7 +33,7 @@ export async function dbMigrate() {
 
     // 2. Lê as migrations que já rodaram
     const { rows } = await driver.query<{ name: string }>(
-      `SELECT name FROM tanis_migrations`
+      `SELECT name FROM darkstar_migrations`
     )
     const ran = new Set(rows.map(r => r.name))
 
@@ -71,10 +71,11 @@ export async function dbMigrate() {
       info(`Rodando: ${file}`)
       await migration.up(driver)
 
-      await driver.query(
-        `INSERT INTO tanis_migrations (name) VALUES (?)`,
-        [file]
-      )
+      const sql = db === 'postgres'
+        ? `INSERT INTO darkstar_migrations (name) VALUES ($1)`
+        : `INSERT INTO darkstar_migrations (name) VALUES (?)`
+
+      await driver.query(sql, [file])
 
       success(file)
     }

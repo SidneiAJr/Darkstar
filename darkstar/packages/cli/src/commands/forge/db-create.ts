@@ -1,22 +1,16 @@
 import kleur from 'kleur'
-import { Connection } from '@darkstar/orm'
 
 function success(msg: string) { console.log(kleur.green('  ✔ ') + msg) }
 function info(msg: string)    { console.log(kleur.cyan('  → ') + msg) }
 function error(msg: string)   { console.log(kleur.red('  ✘ ') + msg) }
 
 export async function dbCreate() {
-  const db       = process.env.DB_CONNECTION ?? 'sqlite'
-  const database = process.env.DB_DATABASE   ?? 'tanis'
+  const db       = process.env.DB_CONNECTION ?? 'mysql'
+  const database = process.env.DB_DATABASE   ?? 'darkstar'
 
   info(`Criando banco: ${database}...`)
 
   try {
-    if (db === 'sqlite') {
-      info('SQLite não precisa de db:create — o arquivo é criado automaticamente.')
-      return
-    }
-
     if (db === 'mysql' || db === 'mariadb') {
       const mysql = await import('mysql2/promise')
       const conn = await mysql.createConnection({
@@ -36,10 +30,21 @@ export async function dbCreate() {
         port:     Number(process.env.DB_PORT ?? 5432),
         user:     process.env.DB_USERNAME ?? 'postgres',
         password: process.env.DB_PASSWORD ?? '',
-        database: 'postgres', // conecta no banco padrão pra criar o novo
+        database: 'postgres',
       })
       await client.connect()
-      await client.query(`CREATE DATABASE "${database}"`)
+
+      const res = await client.query(
+        `SELECT 1 FROM pg_database WHERE datname = $1`,
+        [database]
+      )
+
+      if (res.rowCount === 0) {
+        await client.query(`CREATE DATABASE "${database}"`)
+      } else {
+        info(`Banco "${database}" já existe, pulando...`)
+      }
+
       await client.end()
     }
 

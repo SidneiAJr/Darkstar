@@ -10,6 +10,7 @@ export function makeMigration(name: string) {
     .replace(/[-T:]/g, '_')
     .slice(0, 19)
 
+  const table    = name.toLowerCase() + 's'
   const fileName = `${timestamp}_${name}.ts`
   const migrationsDir = path.resolve(process.cwd(), 'database/migrations')
   const filePath = path.join(migrationsDir, fileName)
@@ -22,7 +23,7 @@ import { Schema, Blueprint } from '@darkstar/orm'
 export async function up(driver: BaseDriver): Promise<void> {
   const schema = new Schema(driver)
 
-  await schema.create('${name}', (table: Blueprint) => {
+  await schema.create('${table}', (table: Blueprint) => {
     table.id()
     table.timestamps()
   })
@@ -30,7 +31,7 @@ export async function up(driver: BaseDriver): Promise<void> {
 
 export async function down(driver: BaseDriver): Promise<void> {
   const schema = new Schema(driver)
-  await schema.drop('${name}')
+  await schema.drop('${table}')
 }
 `
 
