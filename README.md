@@ -1,15 +1,15 @@
 > [!WARNING]
-> 🚧 O Tanis está em desenvolvimento ativo. Não use em produção — APIs podem mudar sem aviso.
+> 🚧 O Darkstar está em desenvolvimento ativo. Não use em produção — APIs podem mudar sem aviso.
 
 
-# 🪐 Tanis — Backend Framework for Node.js
+# 🪐 Darkstar  — Backend Framework for Node.js
 
 > *"O lar da humanidade. O lar do dev."*
 > Inspirado no planeta Tanis do filme **Pandorum** — e na elegância do **Laravel**.
 
 ---
 
-## Por que o Tanis existe?
+## Por que o Darkstar existe?
 
 Sou fã de PHP. Primeira vez que vi o Laravel bati a cabeça e não entendi nada — mas quando entendi, pensei: *"isso é brilhante"*.
 
@@ -188,20 +188,6 @@ await User.where('id', 1).update({ name: 'Sidnei Jr' })
 // deletar
 await User.where('id', 1).delete()
 ```
-
----
-
-## Roadmap
-
-- [x] Definição da arquitetura e CLI
-- [ ] `tanis new` — gerador de projeto
-- [ ] `tanis artisan make:*` — geração de camadas
-- [ ] Tanis ORM — query builder estilo Eloquent
-- [ ] Sistema de migrations
-- [ ] Roteamento centralizado
-- [ ] Autenticação JWT embutida
-- [ ] Seeders
-- [ ] Documentação completa
 
 ---
 
