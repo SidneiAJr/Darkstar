@@ -4,8 +4,8 @@
 
 # 🪐 Darkstar  — Backend Framework for Node.js
 
-> *"O lar da humanidade. O lar do dev."*
-> Inspirado no planeta Tanis do filme **Pandorum** — e na elegância do **Laravel**.
+> *"Forjado no vácuo. Construído para durar"*
+> Inspirado na elegância do Laravel — reimaginado para o universo Node.js.
 
 ---
 
