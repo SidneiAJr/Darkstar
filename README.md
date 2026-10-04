@@ -45,7 +45,6 @@ darkstar new meu-projeto
 
 O CLI vai perguntar:
 - Qual banco de dados? (MySQL · PostgreSQL)
-- Usar autenticação JWT? (sim/não)
 
 Estrutura gerada:
 
