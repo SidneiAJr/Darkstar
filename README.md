@@ -148,6 +148,30 @@ export class UserService {
 }
 ```
 
+**`UserRepository.ts`**
+
+```typescript
+import { User } from '../models/User'
+
+export class UserRepository {
+  findAll()                                     { return User.all() }
+  findById(id: string)                          { return User.find(id) }
+  create(data: Record<string, any>)             { return User.create(data) }
+  update(id: string, data: Record<string, any>) { return User.where('id', id).update(data) }
+  delete(id: string)                            { return User.where('id', id).delete() }
+}
+```
+
+**`User.ts`**
+
+```typescript
+import { Model } from '@darkstar/orm'
+
+export class User extends Model {
+  static table = 'users'
+}
+```
+
 ---
 
 ## Rotas
