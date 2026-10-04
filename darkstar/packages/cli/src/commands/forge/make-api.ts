@@ -17,36 +17,46 @@ function writeFile(filePath: string, content: string) {
   success(`Criado: ${filePath}`)
 }
 
+function pluralize(word: string): string {
+  if (word.endsWith('ch') || word.endsWith('sh') || word.endsWith('x') || word.endsWith('z') || word.endsWith('s')) {
+    return word + 'es'
+  }
+  if (word.endsWith('y') && !['ay', 'ey', 'iy', 'oy', 'uy'].some(v => word.endsWith(v))) {
+    return word.slice(0, -1) + 'ies'
+  }
+  return word + 's'
+}
+
 function controllerStub(name: string): string {
   const lower = name.toLowerCase()
-  return `import { DarkstarRequest, DarkstarResponse } from '@darkstar/core'
+  return `import { TanisRequest, TanisResponse } from '@darkstar/core'
 import { ${name}Service } from '../services/${name}Service'
 
 export class ${name}Controller {
   constructor(private ${lower}Service: ${name}Service) {}
 
-  async index(req: DarkstarRequest, res: DarkstarResponse) {
+  async index(req: TanisRequest, res: TanisResponse) {
     const data = await this.${lower}Service.findAll()
     return res.ok(data)
   }
 
-  async show(req: DarkstarRequest, res: DarkstarResponse) {
+  async show(req: TanisRequest, res: TanisResponse) {
     const data = await this.${lower}Service.findById(req.param('id')!)
     if (!data) return res.notFound('${name} não encontrado')
     return res.ok(data)
   }
 
-  async store(req: DarkstarRequest, res: DarkstarResponse) {
+  async store(req: TanisRequest, res: TanisResponse) {
     const data = await this.${lower}Service.create(req.all())
     return res.created(data)
   }
 
-  async update(req: DarkstarRequest, res: DarkstarResponse) {
+  async update(req: TanisRequest, res: TanisResponse) {
     const data = await this.${lower}Service.update(req.param('id')!, req.all())
     return res.ok(data)
   }
 
-  async destroy(req: DarkstarRequest, res: DarkstarResponse) {
+  async destroy(req: TanisRequest, res: TanisResponse) {
     await this.${lower}Service.delete(req.param('id')!)
     return res.noContent()
   }
@@ -84,7 +94,7 @@ export class ${name}Repository {
 }
 
 function modelStub(name: string): string {
-  const table = name.toLowerCase() + 's'
+  const table = pluralize(name.toLowerCase())
   return `import { Model } from '@darkstar/orm'
 
 export class ${name} extends Model {
@@ -95,6 +105,7 @@ export class ${name} extends Model {
 
 function routeStub(name: string): string {
   const lower = name.toLowerCase()
+  const plural = pluralize(lower)
   return `import { Route, Container } from '@darkstar/core'
 import { ${name}Controller } from '../controllers/${name}Controller'
 import { ${name}Service } from '../services/${name}Service'
@@ -104,7 +115,7 @@ Container.bind('${name}Repository', ${name}Repository)
 Container.bind('${name}Service',    ${name}Service)
 Container.bind('${name}Controller', ${name}Controller)
 
-Route.resource('${lower}s', ${name}Controller)
+Route.resource('${plural}', ${name}Controller)
 `
 }
 
@@ -112,12 +123,12 @@ function registerRoute(src: string, lower: string) {
   const appPath = path.join(src, 'core', 'app.ts')
   if (!fs.existsSync(appPath)) return
 
+  const plural = pluralize(lower)
   let content = fs.readFileSync(appPath, 'utf-8')
-  const routeImport = `import '../routes/${lower}s'`
+  const routeImport = `import '../routes/${plural}'`
 
   if (content.includes(routeImport)) return
 
-  // injeta logo após o último import existente
   content = content.replace(
     /(import\s+.*\n)(?!import)/,
     `$1${routeImport}\n`
@@ -130,6 +141,7 @@ function registerRoute(src: string, lower: string) {
 export function makeApi(name: string) {
   const src = path.resolve(process.cwd(), 'src')
   const lower = name.toLowerCase()
+  const plural = pluralize(lower)
 
   console.log('')
   info(`Gerando camada completa para: ${kleur.magenta(name)}`)
@@ -139,7 +151,7 @@ export function makeApi(name: string) {
   writeFile(path.join(src, 'services',     `${name}Service.ts`),    serviceStub(name))
   writeFile(path.join(src, 'repositories', `${name}Repository.ts`), repositoryStub(name))
   writeFile(path.join(src, 'models',       `${name}.ts`),           modelStub(name))
-  writeFile(path.join(src, 'routes',       `${lower}s.ts`),         routeStub(name))
+  writeFile(path.join(src, 'routes',       `${plural}.ts`),         routeStub(name))
 
   registerRoute(src, lower)
 
