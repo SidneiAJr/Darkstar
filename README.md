@@ -1,7 +1,6 @@
 > [!WARNING]
 > 🚧 O DarkStar está em desenvolvimento ativo. Não use em produção — APIs podem mudar sem aviso.
 
-
 # 🪐 DarkStar — Backend Framework for Node.js
 
 > *"Forjado no vácuo. Construído para durar."*
@@ -74,8 +73,6 @@ meu-projeto/
 
 ## CLI — DarkStar Forge
 
-### Referência rápida de comandos
-
 | Comando | Descrição |
 |---|---|
 | `darkstar new <nome>` | Cria um novo projeto |
@@ -99,35 +96,36 @@ meu-projeto/
 Um único comando `darkstar forge make:api User` gera toda a cadeia MVC:
 
 **`UserController.ts`**
+
 ```typescript
-import { DarkstarRequest, DarkstarResponse } from '@darkstar/core'
+import { TanisRequest, TanisResponse } from '@darkstar/core'
 import { UserService } from '../services/UserService'
 
 export class UserController {
   constructor(private userService: UserService) {}
 
-  async index(req: DarkstarRequest, res: DarkstarResponse) {
+  async index(req: TanisRequest, res: TanisResponse) {
     const data = await this.userService.findAll()
     return res.ok(data)
   }
 
-  async show(req: DarkstarRequest, res: DarkstarResponse) {
+  async show(req: TanisRequest, res: TanisResponse) {
     const data = await this.userService.findById(req.param('id')!)
     if (!data) return res.notFound('User não encontrado')
     return res.ok(data)
   }
 
-  async store(req: DarkstarRequest, res: DarkstarResponse) {
+  async store(req: TanisRequest, res: TanisResponse) {
     const data = await this.userService.create(req.all())
     return res.created(data)
   }
 
-  async update(req: DarkstarRequest, res: DarkstarResponse) {
+  async update(req: TanisRequest, res: TanisResponse) {
     const data = await this.userService.update(req.param('id')!, req.all())
     return res.ok(data)
   }
 
-  async destroy(req: DarkstarRequest, res: DarkstarResponse) {
+  async destroy(req: TanisRequest, res: TanisResponse) {
     await this.userService.delete(req.param('id')!)
     return res.noContent()
   }
@@ -135,6 +133,7 @@ export class UserController {
 ```
 
 **`UserService.ts`**
+
 ```typescript
 import { UserRepository } from '../repositories/UserRepository'
 
@@ -149,13 +148,25 @@ export class UserService {
 }
 ```
 
-**Rotas geradas automaticamente:**
+---
+
+## Rotas
+
+Todas as rotas são prefixadas com `/api` por padrão. Exemplo com `make:api User`:
+
 ```
-GET    /users
-GET    /users/:id
-POST   /users
-PUT    /users/:id
-DELETE /users/:id
+GET    /api/users
+GET    /api/users/:id
+POST   /api/users
+PUT    /api/users/:id
+DELETE /api/users/:id
+```
+
+O prefixo pode ser alterado no boot da aplicação:
+
+```typescript
+await app.boot('/')    // sem prefixo
+await app.boot('/v1')  // versionado
 ```
 
 ---
@@ -192,8 +203,8 @@ await User.where('id', 1).delete()
 
 - **Laravel** — pela elegância e produtividade
 - **Pandorum** — pela ideia de forjar algo novo no vácuo do espaço
-- **Constellation CLI** — projeto anterior do autor, mesmo espírito de automatizar o que é repetitivo
+- **Constellation CLI** — mesmo espírito de automatizar o que é repetitivo
 
 ---
 
-> Construído por [Sidnei Junior](https://github.com/SidneiAJr) · Open Source
+> 🪐 DarkStar — Open Source
