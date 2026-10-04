@@ -11,7 +11,16 @@ export async function dbSeed() {
   try {
     await Connection.connect()
 
-    const seederPath = path.resolve(process.cwd(), 'database/seeders/DatabaseSeeder')
+    const base = path.resolve(process.cwd(), 'database/seeders/DatabaseSeeder')
+
+    let seederPath = base
+    try {
+      require.resolve(base + '.ts')
+      seederPath = base + '.ts'
+    } catch {
+      seederPath = base + '.js'
+    }
+
     const { DatabaseSeeder } = await import(seederPath)
     const seeder = new DatabaseSeeder()
     await seeder.run()

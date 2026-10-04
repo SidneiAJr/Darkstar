@@ -1,4 +1,4 @@
-import { Seeder } from './Seeder'
+import { Seeder } from './Seeder.ts'
 
 export class DatabaseSeeder {
   private seeders: Seeder[] = [
