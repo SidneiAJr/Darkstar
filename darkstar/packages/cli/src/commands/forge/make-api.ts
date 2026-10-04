@@ -108,6 +108,25 @@ Route.resource('${lower}s', ${name}Controller)
 `
 }
 
+function registerRoute(src: string, lower: string) {
+  const appPath = path.join(src, 'core', 'app.ts')
+  if (!fs.existsSync(appPath)) return
+
+  let content = fs.readFileSync(appPath, 'utf-8')
+  const routeImport = `import '../routes/${lower}s'`
+
+  if (content.includes(routeImport)) return
+
+  // injeta logo após o último import existente
+  content = content.replace(
+    /(import\s+.*\n)(?!import)/,
+    `$1${routeImport}\n`
+  )
+
+  fs.writeFileSync(appPath, content, 'utf-8')
+  success(`Rota registrada em src/core/app.ts`)
+}
+
 export function makeApi(name: string) {
   const src = path.resolve(process.cwd(), 'src')
   const lower = name.toLowerCase()
@@ -122,10 +141,9 @@ export function makeApi(name: string) {
   writeFile(path.join(src, 'models',       `${name}.ts`),           modelStub(name))
   writeFile(path.join(src, 'routes',       `${lower}s.ts`),         routeStub(name))
 
+  registerRoute(src, lower)
+
   console.log('')
   success(`API ${name} gerada com sucesso!`)
-  console.log('')
-  console.log(kleur.gray('  Registre a rota no seu arquivo principal:'))
-  console.log(kleur.cyan(`  import './routes/${lower}s'`))
   console.log('')
 }
