@@ -16,15 +16,44 @@ function writeFile(filePath: string, content: string) {
   success(`Criado: ${filePath}`)
 }
 
-function stub(name: string): string {
+function stubUser(): string {
   return `import { Seeder } from './Seeder'
+import { User }   from '../../src/models/User'
+import bcrypt     from 'bcrypt'
 
-export class ${name}Seeder extends Seeder {
+export class UserSeeder extends Seeder {
   async run(): Promise<void> {
-    // insira os dados aqui
+    for (let i = 1; i <= 10; i++) {
+      await User.create({
+        name:     \`User \${i}\`,
+        email:    \`user\${i}@darkstar.dev\`,
+        password: await bcrypt.hash('password', 10),
+        role:     i === 1 ? 'admin' : 'user',
+      })
+    }
   }
 }
 `
+}
+
+function stubGeneric(name: string): string {
+  return `import { Seeder } from './Seeder'
+import { ${name} } from '../../src/models/${name}'
+
+export class ${name}Seeder extends Seeder {
+  async run(): Promise<void> {
+    for (let i = 1; i <= 10; i++) {
+      await ${name}.create({
+        // insira os campos aqui
+      })
+    }
+  }
+}
+`
+}
+
+function stub(name: string): string {
+  return name === 'User' ? stubUser() : stubGeneric(name)
 }
 
 function registerSeeder(seedersDir: string, name: string) {
@@ -33,15 +62,12 @@ function registerSeeder(seedersDir: string, name: string) {
 
   let content = fs.readFileSync(dbSeederPath, 'utf-8')
 
-  const importLine = `import { ${name}Seeder } from './${name}Seeder'`
+  const importLine  = `import { ${name}Seeder } from './${name}Seeder'`
   const instanceLine = `new ${name}Seeder(),`
 
   if (content.includes(importLine)) return
 
-  // adiciona o import no topo
   content = importLine + '\n' + content
-
-  // registra no array de seeders
   content = content.replace(
     /\/\/ registre seus seeders aqui/,
     `// registre seus seeders aqui\n    ${instanceLine}`

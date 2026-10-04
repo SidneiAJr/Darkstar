@@ -11,6 +11,7 @@ import { makeApi }         from './commands/forge/make-api'
 import { makeMiddleware }  from './commands/forge/make-middleware'
 import { makeSchema }      from './commands/forge/make-schema'
 import { makeUtil }        from './commands/forge/make-util'
+import { makeDeps }        from './commands/forge/make-deps'
 import { dbMigrate }       from './commands/forge/db-migrate'
 import { dbSeed }          from './commands/forge/db-seed'
 import { makeMigration }   from './commands/forge/make-migration'
@@ -102,6 +103,11 @@ forge
   .command('make:seeder <name>')
   .description('Cria um Seeder')
   .action((name: string) => makeSeeder(name))
+
+forge
+  .command('make:deps [names...]')
+  .description('Instala dependências opcionais no projeto (sem argumentos lista todas)')
+  .action((names: string[]) => makeDeps(names))
 
 forge
   .command('db:create')
