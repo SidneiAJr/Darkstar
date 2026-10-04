@@ -103,34 +103,34 @@ Um único comando `darkstar forge make:api User` gera toda a cadeia MVC:
 **`UserController.ts`**
 
 ```typescript
-import { TanisRequest, TanisResponse } from '@darkstar/core'
+import { DarkstarRequest, DarkstarResponse } from '@darkstar/core'
 import { UserService } from '../services/UserService'
 
 export class UserController {
   constructor(private userService: UserService) {}
 
-  async index(req: TanisRequest, res: TanisResponse) {
+  async index(req: DarkstarRequest, res: DarkstarResponse) {
     const data = await this.userService.findAll()
     return res.ok(data)
   }
 
-  async show(req: TanisRequest, res: TanisResponse) {
+  async show(req: DarkstarRequest, res: DarkstarResponse) {
     const data = await this.userService.findById(req.param('id')!)
     if (!data) return res.notFound('User não encontrado')
     return res.ok(data)
   }
 
-  async store(req: TanisRequest, res: TanisResponse) {
+  async store(req: DarkstarRequest, res: DarkstarResponse) {
     const data = await this.userService.create(req.all())
     return res.created(data)
   }
 
-  async update(req: TanisRequest, res: TanisResponse) {
+  async update(req: DarkstarRequest, res: DarkstarResponse) {
     const data = await this.userService.update(req.param('id')!, req.all())
     return res.ok(data)
   }
 
-  async destroy(req: TanisRequest, res: TanisResponse) {
+  async destroy(req: DarkstarRequest, res: DarkstarResponse) {
     await this.userService.delete(req.param('id')!)
     return res.noContent()
   }
@@ -186,10 +186,10 @@ export const UserSchema = {}
 **`UserMiddleware.ts`**
 
 ```typescript
-import { TanisRequest, TanisResponse, NextFunction } from '@darkstar/core'
+import { DarkstarRequest, DarkstarResponse, NextFunction } from '@darkstar/core'
 
 export class UserMiddleware {
-  handle(req: TanisRequest, res: TanisResponse, next: NextFunction) {
+  handle(req: DarkstarRequest, res: DarkstarResponse, next: NextFunction) {
     next()
   }
 }
