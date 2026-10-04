@@ -1,19 +1,22 @@
 #!/usr/bin/env node
 
 import { program } from 'commander'
-import { runNew }         from './commands/new'
-import { runServe }       from './commands/serve'
-import { makeController } from './commands/forge/make-controller'
-import { makeService }    from './commands/forge/make-service'
-import { makeRepository } from './commands/forge/make-repository'
-import { makeModel }      from './commands/forge/make-model'
-import { makeApi }        from './commands/forge/make-api'
-import { dbMigrate }      from './commands/forge/db-migrate'
-import { dbSeed }         from './commands/forge/db-seed'
-import { makeMigration }  from './commands/forge/make-migration'
-import { dbCreate }       from './commands/forge/db-create'
-import { dbRollback }     from './commands/forge/db-rollback'
-import { makeSeeder }     from './commands/forge/make-seeder'
+import { runNew }          from './commands/new'
+import { runServe }        from './commands/serve'
+import { makeController }  from './commands/forge/make-controller'
+import { makeService }     from './commands/forge/make-service'
+import { makeRepository }  from './commands/forge/make-repository'
+import { makeModel }       from './commands/forge/make-model'
+import { makeApi }         from './commands/forge/make-api'
+import { makeMiddleware }  from './commands/forge/make-middleware'
+import { makeSchema }      from './commands/forge/make-schema'
+import { makeUtil }        from './commands/forge/make-util'
+import { dbMigrate }       from './commands/forge/db-migrate'
+import { dbSeed }          from './commands/forge/db-seed'
+import { makeMigration }   from './commands/forge/make-migration'
+import { dbCreate }        from './commands/forge/db-create'
+import { dbRollback }      from './commands/forge/db-rollback'
+import { makeSeeder }      from './commands/forge/make-seeder'
 
 // -----------------------------------------------
 // Configuração do programa
@@ -72,18 +75,23 @@ forge
 
 forge
   .command('make:api <name>')
-  .description('Gera Controller + Service + Repository + Model + Rotas')
+  .description('Gera Controller + Service + Repository + Model + Rotas + Schema + Middleware')
   .action((name: string) => makeApi(name))
 
 forge
-  .command('db:migrate')
-  .description('Roda as migrations pendentes')
-  .action(() => dbMigrate())
+  .command('make:middleware <name>')
+  .description('Cria um Middleware')
+  .action((name: string) => makeMiddleware(name))
 
 forge
-  .command('db:seed')
-  .description('Popula o banco com seeders')
-  .action(() => dbSeed())
+  .command('make:schema <name>')
+  .description('Cria um Schema')
+  .action((name: string) => makeSchema(name))
+
+forge
+  .command('make:util <name>')
+  .description('Cria utils de omitPassword e twoFactor')
+  .action((name: string) => makeUtil(name))
 
 forge
   .command('make:migration <name>')
@@ -91,9 +99,19 @@ forge
   .action((name: string) => makeMigration(name))
 
 forge
+  .command('make:seeder <name>')
+  .description('Cria um Seeder')
+  .action((name: string) => makeSeeder(name))
+
+forge
   .command('db:create')
   .description('Cria o banco de dados')
   .action(() => dbCreate())
+
+forge
+  .command('db:migrate')
+  .description('Roda as migrations pendentes')
+  .action(() => dbMigrate())
 
 forge
   .command('db:rollback')
@@ -101,8 +119,8 @@ forge
   .action(() => dbRollback())
 
 forge
-  .command('make:seeder <name>')
-  .description('Cria um Seeder')
-  .action((name: string) => makeSeeder(name))
+  .command('db:seed')
+  .description('Popula o banco com seeders')
+  .action(() => dbSeed())
 
 program.parse(process.argv)

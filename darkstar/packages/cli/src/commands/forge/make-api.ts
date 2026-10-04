@@ -119,6 +119,51 @@ Route.resource('${plural}', ${name}Controller)
 `
 }
 
+function schemaStub(name: string): string {
+  return `export const ${name}Schema = {}
+`
+}
+
+function middlewareStub(name: string): string {
+  return `import { TanisRequest, TanisResponse, NextFunction } from '@darkstar/core'
+
+export class ${name}Middleware {
+  handle(req: TanisRequest, res: TanisResponse, next: NextFunction) {
+    next()
+  }
+}
+`
+}
+
+function omitPasswordStub(name: string): string {
+  return `export function omit${name}Password<T extends Record<string, any>>(obj: T): Omit<T, 'password'> {
+  const { password, ...rest } = obj
+  return rest
+}
+`
+}
+
+function twoFactorStub(name: string): string {
+  return `import * as crypto from 'crypto'
+
+/**
+ * Gera um código TOTP simples de 6 dígitos para ${name}.
+ * Em produção, prefira libs como 'otplib' para TOTP compliant com RFC 6238.
+ */
+export function generate${name}TwoFactorCode(): string {
+  const code = crypto.randomInt(100000, 999999)
+  return code.toString()
+}
+
+/**
+ * Valida se o código informado corresponde ao código esperado para ${name}.
+ */
+export function validate${name}TwoFactorCode(inputCode: string, expectedCode: string): boolean {
+  return inputCode.trim() === expectedCode.trim()
+}
+`
+}
+
 function registerRoute(src: string, lower: string) {
   const appPath = path.join(src, 'core', 'app.ts')
   if (!fs.existsSync(appPath)) return
@@ -147,15 +192,61 @@ export function makeApi(name: string) {
   info(`Gerando camada completa para: ${kleur.magenta(name)}`)
   console.log('')
 
-  writeFile(path.join(src, 'controllers',  `${name}Controller.ts`), controllerStub(name))
-  writeFile(path.join(src, 'services',     `${name}Service.ts`),    serviceStub(name))
-  writeFile(path.join(src, 'repositories', `${name}Repository.ts`), repositoryStub(name))
-  writeFile(path.join(src, 'models',       `${name}.ts`),           modelStub(name))
-  writeFile(path.join(src, 'routes',       `${plural}.ts`),         routeStub(name))
+  writeFile(path.join(src, 'controllers',  `${name}Controller.ts`),  controllerStub(name))
+  writeFile(path.join(src, 'services',     `${name}Service.ts`),     serviceStub(name))
+  writeFile(path.join(src, 'repositories', `${name}Repository.ts`),  repositoryStub(name))
+  writeFile(path.join(src, 'models',       `${name}.ts`),            modelStub(name))
+  writeFile(path.join(src, 'routes',       `${plural}.ts`),          routeStub(name))
+  writeFile(path.join(src, 'schemas',      `${name}Schema.ts`),      schemaStub(name))
+  writeFile(path.join(src, 'middlewares',  `${name}Middleware.ts`),  middlewareStub(name))
 
   registerRoute(src, lower)
 
   console.log('')
   success(`API ${name} gerada com sucesso!`)
+  console.log('')
+}
+
+export function makeUtil(name: string) {
+  const src = path.resolve(process.cwd(), 'src')
+  const lower = name.toLowerCase()
+
+  console.log('')
+  info(`Gerando utils para: ${kleur.magenta(name)}`)
+  console.log('')
+
+  writeFile(path.join(src, 'utils', lower, `omitPassword.ts`), omitPasswordStub(name))
+  writeFile(path.join(src, 'utils', lower, `twoFactor.ts`),    twoFactorStub(name))
+
+  console.log('')
+  success(`Utils de ${name} geradas com sucesso!`)
+  console.log('')
+}
+
+export function makeSchema(name: string) {
+  const src = path.resolve(process.cwd(), 'src')
+
+  console.log('')
+  info(`Gerando schema para: ${kleur.magenta(name)}`)
+  console.log('')
+
+  writeFile(path.join(src, 'schemas', `${name}Schema.ts`), schemaStub(name))
+
+  console.log('')
+  success(`Schema ${name} gerado com sucesso!`)
+  console.log('')
+}
+
+export function makeMiddleware(name: string) {
+  const src = path.resolve(process.cwd(), 'src')
+
+  console.log('')
+  info(`Gerando middleware para: ${kleur.magenta(name)}`)
+  console.log('')
+
+  writeFile(path.join(src, 'middlewares', `${name}Middleware.ts`), middlewareStub(name))
+
+  console.log('')
+  success(`Middleware ${name} gerado com sucesso!`)
   console.log('')
 }
