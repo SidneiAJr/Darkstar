@@ -56,6 +56,9 @@ meu-projeto/
 │   ├── repositories/
 │   ├── models/
 │   ├── routes/
+│   ├── schemas/
+│   ├── middlewares/
+│   ├── utils/
 │   └── core/
 │       └── app.ts
 ├── database/
@@ -76,13 +79,16 @@ meu-projeto/
 |---|---|
 | `darkstar new <nome>` | Cria um novo projeto |
 | `darkstar serve` | Sobe o servidor de desenvolvimento |
-| `darkstar forge make:api <Nome>` | Gera controller + service + repository + model + rotas CRUD |
+| `darkstar forge make:api <Nome>` | Gera controller + service + repository + model + rotas + schema + middleware |
 | `darkstar forge make:controller <Nome>` | Gera um Controller |
 | `darkstar forge make:service <Nome>` | Gera um Service |
 | `darkstar forge make:repository <Nome>` | Gera um Repository |
 | `darkstar forge make:model <Nome>` | Gera um Model |
 | `darkstar forge make:migration <Nome>` | Gera uma Migration |
 | `darkstar forge make:seeder <Nome>` | Gera um Seeder |
+| `darkstar forge make:schema <Nome>` | Gera um Schema |
+| `darkstar forge make:middleware <Nome>` | Gera um Middleware |
+| `darkstar forge make:util <Nome>` | Gera utils de omitPassword e twoFactor |
 | `darkstar forge db:create` | Cria o banco de dados |
 | `darkstar forge db:migrate` | Roda as migrations pendentes |
 | `darkstar forge db:rollback` | Desfaz a última migration |
@@ -168,6 +174,54 @@ import { Model } from '@darkstar/orm'
 
 export class User extends Model {
   static table = 'users'
+}
+```
+
+**`UserSchema.ts`**
+
+```typescript
+export const UserSchema = {}
+```
+
+**`UserMiddleware.ts`**
+
+```typescript
+import { TanisRequest, TanisResponse, NextFunction } from '@darkstar/core'
+
+export class UserMiddleware {
+  handle(req: TanisRequest, res: TanisResponse, next: NextFunction) {
+    next()
+  }
+}
+```
+
+---
+
+## Utils — `make:util`
+
+O comando `darkstar forge make:util User` gera utilitários prontos em `src/utils/user/`:
+
+**`omitPassword.ts`**
+
+```typescript
+export function omitUserPassword<T extends Record<string, any>>(obj: T): Omit<T, 'password'> {
+  const { password, ...rest } = obj
+  return rest
+}
+```
+
+**`twoFactor.ts`**
+
+```typescript
+import * as crypto from 'crypto'
+
+export function generateUserTwoFactorCode(): string {
+  const code = crypto.randomInt(100000, 999999)
+  return code.toString()
+}
+
+export function validateUserTwoFactorCode(inputCode: string, expectedCode: string): boolean {
+  return inputCode.trim() === expectedCode.trim()
 }
 ```
 
