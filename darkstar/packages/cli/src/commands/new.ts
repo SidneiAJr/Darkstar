@@ -1,4 +1,3 @@
-import inquirer from 'inquirer'
 import kleur from 'kleur'
 import * as fs from 'fs'
 import * as path from 'path'
@@ -34,21 +33,12 @@ function copyTemplate(src: string, dest: string) {
   }
 }
 
-function configureEnv(projectPath: string, db: string) {
+function configureEnv(projectPath: string, projectName: string) {
   const envPath = path.join(projectPath, '.env.example')
   if (!fs.existsSync(envPath)) return
 
   let env = fs.readFileSync(envPath, 'utf-8')
-
-  env = env.replace(/^DB_CONNECTION=.*/m, `DB_CONNECTION=${db}`)
-
-  if (db === 'mysql') {
-    env = env.replace(/^DB_PORT=.*/m, 'DB_PORT=3306')
-    env = env.replace(/^DB_DATABASE=.*/m, 'DB_DATABASE=darkstar')
-  } else {
-    env = env.replace(/^DB_PORT=.*/m, 'DB_PORT=5432')
-    env = env.replace(/^DB_DATABASE=.*/m, 'DB_DATABASE=darkstar')
-  }
+  env = env.replace(/^DB_DATABASE=.*/m, `DB_DATABASE=${projectName}`)
 
   fs.writeFileSync(envPath, env, 'utf-8')
   fs.copyFileSync(envPath, path.join(projectPath, '.env'))
@@ -103,20 +93,6 @@ export async function runNew(name: string) {
   console.log(kleur.gray(`  Criando projeto: ${name}`))
   console.log('')
 
-  const answers = await inquirer.prompt([
-    {
-      type: 'select',
-      name: 'db',
-      message: 'Qual banco de dados?',
-      choices: [
-        { name: 'MySQL',      value: 'mysql'    },
-        { name: 'PostgreSQL', value: 'postgres' },
-      ],
-    },
-  ])
-
-  console.log('')
-
   const projectPath = path.resolve(process.cwd(), name)
 
   if (fs.existsSync(projectPath)) {
@@ -131,7 +107,7 @@ export async function runNew(name: string) {
   success('Estrutura criada')
 
   info('Configurando .env...')
-  configureEnv(projectPath, answers.db)
+  configureEnv(projectPath, name)
   success('.env configurado')
 
   info('Configurando package.json...')

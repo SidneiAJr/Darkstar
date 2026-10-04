@@ -13,6 +13,7 @@ import { dbSeed }         from './commands/forge/db-seed'
 import { makeMigration }  from './commands/forge/make-migration'
 import { dbCreate }       from './commands/forge/db-create'
 import { dbRollback }     from './commands/forge/db-rollback'
+import { makeSeeder }     from './commands/forge/make-seeder'
 
 // -----------------------------------------------
 // Configuração do programa
@@ -98,5 +99,10 @@ forge
   .command('db:rollback')
   .description('Desfaz a última migration')
   .action(() => dbRollback())
+
+forge
+  .command('make:seeder <name>')
+  .description('Cria um Seeder')
+  .action((name: string) => makeSeeder(name))
 
 program.parse(process.argv)
