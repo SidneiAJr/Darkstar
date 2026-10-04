@@ -72,7 +72,7 @@ function configurePackageJson(projectPath: string, projectName: string) {
     description: '',
     main: 'dist/core/app.js',
     scripts: {
-      dev:   'ts-node src/core/app.ts',
+      dev:   'tsx src/core/app.ts',
       build: 'tsc',
       start: 'node dist/core/app.js',
     },
@@ -80,7 +80,7 @@ function configurePackageJson(projectPath: string, projectName: string) {
     devDependencies: {
       '@types/express': 'latest',
       '@types/node':    'latest',
-      'ts-node':        'latest',
+      'tsx':            'latest',
       'typescript':     'latest',
     },
   }
