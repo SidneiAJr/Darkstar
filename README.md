@@ -1,6 +1,9 @@
 > [!WARNING]
 > 🚧 O DarkStar está em desenvolvimento ativo. Não use em produção — APIs podem mudar sem aviso.
 
+> [!NOTE]
+> 📦 O DarkStar ainda não foi publicado no npm. O pacote está em fase de testes — a publicação acontecerá quando o core estiver estável.
+
 # 🪐 DarkStar — Backend Framework for Node.js
 
 > *"Forjado no vácuo. Construído para durar."*
