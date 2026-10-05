@@ -49,11 +49,12 @@ function configurePackageJson(projectPath: string, projectName: string) {
   const monorepoRoot = path.resolve(__dirname, '../../../../')
 
   const deps: Record<string, string> = {
-    '@darkstar/core': `file:${path.join(monorepoRoot, 'packages/core').replace(/\\/g, '/')}`,
-    '@darkstar/orm':  `file:${path.join(monorepoRoot, 'packages/orm').replace(/\\/g, '/')}`,
-    'dotenv':         'latest',
-    'express':        'latest',
-    'zod':            'latest',
+    '@darkstar/core':       `file:${path.join(monorepoRoot, 'packages/core').replace(/\\/g, '/')}`,
+    '@darkstar/orm':        `file:${path.join(monorepoRoot, 'packages/orm').replace(/\\/g, '/')}`,
+    'dotenv':               'latest',
+    'express':              'latest',
+    'express-rate-limit':   'latest',
+    'zod':                  'latest',
   }
 
   const pkg = {
@@ -68,10 +69,11 @@ function configurePackageJson(projectPath: string, projectName: string) {
     },
     dependencies: deps,
     devDependencies: {
-      '@types/express': 'latest',
-      '@types/node':    'latest',
-      'tsx':            'latest',
-      'typescript':     'latest',
+      '@types/express':            'latest',
+      '@types/express-rate-limit': 'latest',
+      '@types/node':               'latest',
+      'tsx':                       'latest',
+      'typescript':                'latest',
     },
   }
 
