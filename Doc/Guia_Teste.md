@@ -1,6 +1,6 @@
 # 🧪 Testes do DarkStar — O que foi testado e por quê
 
-> **140 testes · 9 arquivos · 100% passando**  
+> **175 testes · 13 arquivos · 100% passando**  
 > Framework: [Vitest](https://vitest.dev/) — rápido, nativo TypeScript, zero configuração extra.
 
 ---
@@ -20,10 +20,14 @@ Testes garantem que o núcleo do framework é confiável antes de qualquer coisa
 ```
 darkstar/
 └── tests/
+    ├── app.test.ts              #  4 testes — Boot da aplicação, error handler, not found
     ├── blueprint.test.ts        # 21 testes — Definição de colunas
     ├── cli.test.ts              # 12 testes — Comandos CLI (controller, migration, seeder)
     ├── container.test.ts        #  7 testes — IoC Container
+    ├── db-commands.test.ts      #  4 testes — db:migrate, db:rollback, db:seed
     ├── make-api.test.ts         # 14 testes — Geração de API completa
+    ├── make-extras.test.ts      # 14 testes — make:model, service, middleware, repository, schema, util
+    ├── model.test.ts            # 13 testes — Model base e QueryBuilder integrado
     ├── query-builder.test.ts    # 23 testes — ORM / QueryBuilder
     ├── request.test.ts          # 24 testes — HTTP Request wrapper
     ├── response.test.ts         # 16 testes — HTTP Response wrapper
@@ -35,7 +39,18 @@ darkstar/
 
 ## ✅ Testes implementados
 
-### 1. `blueprint.test.ts` — 21 testes
+### 1. `app.test.ts` — 4 testes
+
+Boot e middlewares da aplicação principal.
+
+- `getApp()` retorna instância válida do Express
+- `boot()` conecta ao banco e retorna a própria instância (encadeamento)
+- Error handler responde 500 com a mensagem do erro
+- Not found responde 404 com "Rota não encontrada"
+
+---
+
+### 2. `blueprint.test.ts` — 21 testes
 
 O `Blueprint` define como uma tabela deve ser criada nas migrations.
 
@@ -64,7 +79,7 @@ O `Blueprint` define como uma tabela deve ser criada nas migrations.
 
 ---
 
-### 2. `cli.test.ts` — 12 testes
+### 3. `cli.test.ts` — 12 testes
 
 Testa os comandos de geração via CLI com filesystem real em diretório temporário.
 
@@ -74,7 +89,7 @@ Testa os comandos de geração via CLI com filesystem real em diretório tempor�
 
 ---
 
-### 3. `container.test.ts` — 7 testes
+### 4. `container.test.ts` — 7 testes
 
 O `TanisContainer` é o IoC container estilo Laravel — resolve dependências automaticamente pelo nome dos parâmetros do construtor.
 
@@ -88,7 +103,18 @@ O `TanisContainer` é o IoC container estilo Laravel — resolve dependências a
 
 ---
 
-### 4. `make-api.test.ts` — 14 testes
+### 5. `db-commands.test.ts` — 4 testes
+
+Testa os comandos de banco de dados com driver mockado e filesystem temporário.
+
+- **db:migrate** — roda migrations em ordem crescente de timestamp
+- **db:migrate** — não roda migration que já foi executada
+- **db:rollback** — executa o `down()` da última migration rodada
+- **db:seed** — executa o `DatabaseSeeder` e chama `run()`
+
+---
+
+### 6. `make-api.test.ts` — 14 testes
 
 O `make:api` gera 7 arquivos de uma vez para uma entidade completa.
 
@@ -107,7 +133,32 @@ O `make:api` gera 7 arquivos de uma vez para uma entidade completa.
 
 ---
 
-### 5. `query-builder.test.ts` — 23 testes
+### 7. `make-extras.test.ts` — 14 testes
+
+Testa os comandos de geração individuais com filesystem temporário.
+
+- **makeModel** — cria o arquivo, extende `Model`, define `static table`, importa a base, não sobrescreve existente
+- **makeService** — cria o arquivo, contém a classe e importa o Repository, não sobrescreve existente
+- **makeMiddleware** — cria o arquivo, contém `req`, `res`, `next`, não sobrescreve existente
+- **makeRepository** — cria o arquivo, importa o Model correto
+- **makeSchema** — cria o arquivo do schema
+- **makeUtil** — cria os arquivos `omitPassword.ts` e `twoFactor.ts`
+
+---
+
+### 8. `model.test.ts` — 13 testes
+
+Model base integrado ao QueryBuilder.
+
+- `all()`, `find(id)`, `create(data)`, `update()`, `delete()`
+- `where()` encadeado no Model
+- `count()`, `exists()`
+- `paginate(page, perPage)`
+- Soft deletes — `deleted_at` preenchido no delete, ignorado no select
+
+---
+
+### 9. `query-builder.test.ts` — 23 testes
 
 O coração do ORM — transforma chamadas TypeScript em SQL.
 
@@ -132,7 +183,7 @@ O coração do ORM — transforma chamadas TypeScript em SQL.
 
 ---
 
-### 6. `request.test.ts` — 24 testes
+### 10. `request.test.ts` — 24 testes
 
 Wrapper do `Request` do Express com API mais ergonômica.
 
@@ -143,7 +194,7 @@ Wrapper do `Request` do Express com API mais ergonômica.
 
 ---
 
-### 7. `response.test.ts` — 16 testes
+### 11. `response.test.ts` — 16 testes
 
 Wrapper do `Response` do Express com métodos semânticos.
 
@@ -153,7 +204,7 @@ Wrapper do `Response` do Express com métodos semânticos.
 
 ---
 
-### 8. `router.test.ts` — 11 testes
+### 12. `router.test.ts` — 11 testes
 
 Roteador HTTP com suporte a resource routes.
 
@@ -166,7 +217,7 @@ Roteador HTTP com suporte a resource routes.
 
 ---
 
-### 9. `schema.test.ts` — 12 testes
+### 13. `schema.test.ts` — 12 testes
 
 Executa o DDL real via driver mockado.
 
@@ -178,38 +229,26 @@ Executa o DDL real via driver mockado.
 
 ---
 
-## 🔲 Testes pendentes
-
-| Arquivo | O que cobrir |
-|---|---|
-| `app.test.ts` | Boot da aplicação, registro de middlewares globais, error handler, inicialização do servidor |
-| `model.test.ts` | `findAll()`, `findById()`, `create()`, `update()`, `delete()` via QueryBuilder, soft deletes no Model |
-| `db-commands.test.ts` | `db:migrate`, `db:rollback`, `db:seed` — execução das migrations em ordem, rollback, seeders |
-| `drivers.test.ts` | MySQL driver e PostgreSQL driver — conexão, query, disconnect com mock de `mysql2`/`pg` |
-| `serve.test.ts` | Comando `serve` — inicializa o servidor na porta configurada |
-| `new.test.ts` | Comando `new` — scaffold do projeto, cria estrutura de pastas e arquivos base |
-| `make-model.test.ts` | `make:model` isolado — classe gerada, herança do Model base |
-| `make-service.test.ts` | `make:service` isolado — classe e imports corretos |
-| `middleware.test.ts` | Middlewares customizados injetados via `use()` no router/app |
-
----
-
 ## Resultado atual
 
 ```
- ✓ darkstar/tests/blueprint.test.ts        (21)
- ✓ darkstar/tests/cli.test.ts              (12)
- ✓ darkstar/tests/container.test.ts         (7)
- ✓ darkstar/tests/make-api.test.ts         (14)
- ✓ darkstar/tests/query-builder.test.ts    (23)
- ✓ darkstar/tests/request.test.ts          (24)
- ✓ darkstar/tests/response.test.ts         (16)
- ✓ darkstar/tests/router.test.ts           (11)
- ✓ darkstar/tests/schema.test.ts           (12)
+ ✓ darkstar/tests/app.test.ts               ( 4)
+ ✓ darkstar/tests/blueprint.test.ts         (21)
+ ✓ darkstar/tests/cli.test.ts               (12)
+ ✓ darkstar/tests/container.test.ts          (7)
+ ✓ darkstar/tests/db-commands.test.ts        (4)
+ ✓ darkstar/tests/make-api.test.ts          (14)
+ ✓ darkstar/tests/make-extras.test.ts       (14)
+ ✓ darkstar/tests/model.test.ts             (13)
+ ✓ darkstar/tests/query-builder.test.ts     (23)
+ ✓ darkstar/tests/request.test.ts           (24)
+ ✓ darkstar/tests/response.test.ts          (16)
+ ✓ darkstar/tests/router.test.ts            (11)
+ ✓ darkstar/tests/schema.test.ts            (12)
 
- Test Files  9 passed (9)
-      Tests  140 passed (140)
-   Duration  ~941ms
+ Test Files  13 passed (13)
+      Tests  175 passed (175)
+   Duration  ~1.49s
 ```
 
 ---
