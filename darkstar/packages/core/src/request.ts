@@ -1,10 +1,10 @@
 import { Request as ExpressRequest } from 'express'
 
 // -----------------------------------------------
-// TanisRequest — wrapper do Request do Express
+// DarkstarRequest — wrapper do Request do Express
 // -----------------------------------------------
 
-class TanisRequest {
+class DarkstarRequest {
   constructor(private req: ExpressRequest) {}
 
   // -----------------------------------------------
@@ -43,25 +43,27 @@ class TanisRequest {
   // -----------------------------------------------
 
   param(key: string): string | undefined {
-  const value = this.req.params[key]
-  if (Array.isArray(value)) return value[0]
-  return value
-}
-  
- query<T = string>(key: string, fallback?: T): T {
-  const value = this.req.query[key]
-  if (Array.isArray(value)) return value[0] as T
-  return (value as T) ?? fallback!
-}
+    const value = this.req.params[key]
+    if (Array.isArray(value)) return value[0]
+    return value
+  }
+
+  query<T = string>(key: string, fallback?: T): T {
+    const value = this.req.query[key]
+    if (Array.isArray(value)) return value[0] as T
+    return (value as T) ?? fallback!
+  }
+
   // -----------------------------------------------
   // Headers
   // -----------------------------------------------
 
- header(key: string): string | undefined {
-  const value = this.req.headers[key.toLowerCase()]
-  if (Array.isArray(value)) return value[0]
-  return value
-}
+  header(key: string): string | undefined {
+    const value = this.req.headers[key.toLowerCase()]
+    if (Array.isArray(value)) return value[0]
+    return value
+  }
+
   bearerToken(): string | null {
     const auth = this.header('authorization')
     if (!auth || !auth.startsWith('Bearer ')) return null
@@ -105,5 +107,6 @@ class TanisRequest {
   }
 }
 
-export { TanisRequest }
+export { DarkstarRequest }
 export type { ExpressRequest as Request }
+export { DarkstarRequest as TanisRequest }

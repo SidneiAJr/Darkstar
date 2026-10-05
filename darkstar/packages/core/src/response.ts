@@ -1,10 +1,10 @@
 import { Response as ExpressResponse } from 'express'
 
 // -----------------------------------------------
-// TanisResponse — wrapper do Response do Express
+// DarkstarResponse — wrapper do Response do Express
 // -----------------------------------------------
 
-class TanisResponse {
+class DarkstarResponse {
   constructor(private res: ExpressResponse) {}
 
   // -----------------------------------------------
@@ -86,5 +86,6 @@ class TanisResponse {
   }
 }
 
-export { TanisResponse }
+export { DarkstarResponse }
 export type { ExpressResponse as Response }
+export { DarkstarResponse as TanisResponse }

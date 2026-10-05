@@ -4,7 +4,7 @@
 
 type Constructor<T = any> = new (...args: any[]) => T
 
-class TanisContainer {
+export class TanisContainer {
   private bindings = new Map<string, Constructor>()
   private instances = new Map<string, any>()
 

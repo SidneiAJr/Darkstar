@@ -1,7 +1,7 @@
 import { Router as ExpressRouter, Request, Response, NextFunction } from 'express'
 import { Container } from './container'
-import { TanisRequest } from './request'
-import { TanisResponse } from './response'
+import { DarkstarRequest } from './request'
+import { DarkstarResponse } from './response'
 
 // -----------------------------------------------
 // Tipos
@@ -25,7 +25,7 @@ interface RouteDefinition {
 // Router
 // -----------------------------------------------
 
-class TanisRouter {
+class DarkstarRouter {
   private routes: RouteDefinition[] = []
   private middlewareStack: Middleware[] = []
 
@@ -56,13 +56,22 @@ class TanisRouter {
 
   resource(name: string, controller: ControllerClass, middlewares: Middleware[] = []) {
     const base = `/${name}`
-    const byId = `/${name}/:id`
+    const byId  = `/${name}/:id`
+    const proto = controller.prototype
 
-    this.addRoute('get',    base,  controller, 'index',   middlewares)
-    this.addRoute('post',   base,  controller, 'store',   middlewares)
-    this.addRoute('get',    byId,  controller, 'show',    middlewares)
-    this.addRoute('put',    byId,  controller, 'update',  middlewares)
-    this.addRoute('delete', byId,  controller, 'destroy', middlewares)
+    const map: [HttpMethod, string, string][] = [
+      ['get',    base,  'index'],
+      ['post',   base,  'store'],
+      ['get',    byId,  'show'],
+      ['put',    byId,  'update'],
+      ['delete', byId,  'destroy'],
+    ]
+
+    for (const [method, path, action] of map) {
+      if (typeof proto[action] === 'function') {
+        this.addRoute(method, path, controller, action, middlewares)
+      }
+    }
 
     return this
   }
@@ -100,10 +109,10 @@ class TanisRouter {
             )
           }
 
-          const tanisReq = new TanisRequest(req)
-          const tanisRes = new TanisResponse(res)
+          const darkReq = new DarkstarRequest(req)
+          const darkRes = new DarkstarResponse(res)
 
-          await instance[route.action](tanisReq, tanisRes, next)
+          await instance[route.action](darkReq, darkRes, next)
         } catch (err) {
           next(err)
         }
@@ -125,5 +134,6 @@ class TanisRouter {
   }
 }
 
-export const Route = new TanisRouter()
-export { TanisRouter }
+export const Route = new DarkstarRouter()
+export { DarkstarRouter }
+export { DarkstarRouter as TanisRouter }
