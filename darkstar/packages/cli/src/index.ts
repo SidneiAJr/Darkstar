@@ -12,6 +12,7 @@ import { makeMiddleware }  from './commands/forge/make-middleware'
 import { makeSchema }      from './commands/forge/make-schema'
 import { makeUtil }        from './commands/forge/make-util'
 import { makeDeps }        from './commands/forge/make-deps'
+import { makeSecurity }    from './commands/forge/make-security'
 import { dbMigrate }       from './commands/forge/db-migrate'
 import { dbSeed }          from './commands/forge/db-seed'
 import { makeMigration }   from './commands/forge/make-migration'
@@ -103,6 +104,11 @@ forge
   .command('make:seeder <name>')
   .description('Cria um Seeder')
   .action((name: string) => makeSeeder(name))
+
+forge
+  .command('make:security')
+  .description('Gera o RateLimitMiddleware com limiters prontos')
+  .action(() => makeSecurity())
 
 forge
   .command('make:deps [names...]')
