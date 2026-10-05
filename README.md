@@ -88,14 +88,50 @@ meu-projeto/
 | `darkstar forge make:repository <Nome>` | Gera um Repository |
 | `darkstar forge make:model <Nome>` | Gera um Model |
 | `darkstar forge make:migration <Nome>` | Gera uma Migration |
-| `darkstar forge make:seeder <Nome>` | Gera um Seeder |
+| `darkstar forge make:seeder <Nome>` | Gera um Seeder (lê os campos da migration automaticamente) |
 | `darkstar forge make:schema <Nome>` | Gera um Schema |
 | `darkstar forge make:middleware <Nome>` | Gera um Middleware |
 | `darkstar forge make:util <Nome>` | Gera utils de omitPassword e twoFactor |
+| `darkstar forge make:security` | Gera o RateLimitMiddleware com limiters prontos |
 | `darkstar forge db:create` | Cria o banco de dados |
 | `darkstar forge db:migrate` | Roda as migrations pendentes |
 | `darkstar forge db:rollback` | Desfaz a última migration |
 | `darkstar forge db:seed` | Popula o banco com seeders |
+
+---
+
+## Fluxo recomendado do zero
+
+```bash
+# 1. Criar o banco de dados
+darkstar forge db:create
+
+# 2. Gerar a migration
+darkstar forge make:migration CreateUsersTable
+
+# 3. Editar o arquivo gerado em database/migrations/ com os campos desejados
+
+# 4. Rodar a migration
+darkstar forge db:migrate
+
+# 5. Gerar a API completa
+darkstar forge make:api User
+
+# 6. Gerar o seeder (já lê os campos da migration automaticamente)
+darkstar forge make:seeder User
+
+# 7. Popular o banco
+darkstar forge db:seed
+
+# 8. Gerar os utils
+darkstar forge make:util User
+
+# 9. Gerar os rate limiters de segurança
+darkstar forge make:security
+
+# 10. Subir o servidor
+darkstar serve
+```
 
 ---
 
@@ -226,6 +262,31 @@ export function generateUserTwoFactorCode(): string {
 export function validateUserTwoFactorCode(inputCode: string, expectedCode: string): boolean {
   return inputCode.trim() === expectedCode.trim()
 }
+```
+
+---
+
+## Security — `make:security`
+
+O comando `darkstar forge make:security` gera o `src/middlewares/RateLimitMiddleware.ts` com 22 limiters prontos cobrindo:
+
+- **Auth** — login, register, forgot/reset password, refresh token, verify email, two-factor
+- **CRUD** — leitura, escrita, deleção
+- **Arquivos** — upload, download
+- **Tempo real** — SSE, WebSocket
+- **Comunicação** — e-mail, SMS, webhook
+- **Busca e relatórios** — search, stats, report
+- **Admin** — geral e ações destrutivas
+- **Pagamentos** — checkout, reembolso
+
+Uso nas rotas:
+
+```typescript
+import { loginLimiter, registerLimiter, globalLimiter } from '../middlewares/RateLimitMiddleware'
+
+router.post('/auth/login',    loginLimiter,    ...)
+router.post('/auth/register', registerLimiter, ...)
+router.use('/api',            globalLimiter)
 ```
 
 ---
