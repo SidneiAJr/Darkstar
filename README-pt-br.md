@@ -1,39 +1,39 @@
 > [!CAUTION]
-> ## ⚠️ ALPHA VERSION — DO NOT USE IN PRODUCTION
-> DarkStar is in **early alpha**. APIs will change without notice. The package is not stable — use at your own risk.
+> ## ⚠️ VERSÃO ALPHA — NÃO USE EM PRODUÇÃO
+> O DarkStar está em **alpha inicial**. As APIs vão mudar sem aviso prévio. O pacote não é estável — use por sua conta e risco.
 
 > [!NOTE]
-> 📦 DarkStar is not yet published on npm. The package is in active testing — publishing will happen once the core is stable.
+> 📦 O DarkStar ainda não foi publicado no npm. O pacote está em fase de testes — a publicação acontecerá quando o core estiver estável.
 
 # 🪐 DarkStar — Backend Framework for Node.js
 
-> *"Forged in the void. Built to last."*
+> *"Forjado no vácuo. Construído para durar."*
 
-> Inspired by the elegance of **Laravel** — reimagined for the **Node.js** universe.
-
----
-
-## Why does DarkStar exist?
-
-I'm a PHP fan. The first time I saw Laravel I banged my head against the wall and understood nothing — but once I got it, I thought: *"this is brilliant"*.
-
-NestJS tries to bring that experience to Node, but in practice it's verbose, full of decorators and hard to read. Pure Express is too flexible — you end up building the same structure from scratch in every project.
-
-**DarkStar** was born to solve this: a Node.js framework with the clarity and productivity of Laravel, without the ecosystem mess.
+> Inspirado na elegância do **Laravel** — reimaginado para o universo **Node.js**.
 
 ---
 
-## Philosophy
+## Por que o DarkStar existe?
 
-- **Convention over configuration** — ready-made structure, no unnecessary decisions
-- **MVC as a first-class citizen** — Controller → Service → Repository is the standard, not an opinion
-- **CLI that does the heavy lifting** — one command generates the entire layer
-- **Centralized dependencies** — you update DarkStar, not 40 separate packages
-- **Expressive ORM** — Eloquent-style fluent query builder, no decorators
+Sou fã de PHP. Primeira vez que vi o Laravel bati a cabeça e não entendi nada — mas quando entendi, pensei: *"isso é brilhante"*.
+
+O NestJS tenta trazer essa experiência pro Node, mas na prática é verboso, cheio de decoradores e difícil de ler. O Express puro é flexível demais — você acaba construindo a mesma estrutura do zero em todo projeto.
+
+O **DarkStar** nasceu pra resolver isso: um framework Node.js com a clareza e produtividade do Laravel, sem a bagunça do ecossistema.
 
 ---
 
-## Installation
+## Filosofia
+
+- **Convenção sobre configuração** — estrutura pronta, sem decisão desnecessária
+- **MVC como cidadão de primeira classe** — Controller → Service → Repository é o padrão, não uma opinião
+- **CLI que faz o trabalho pesado** — uma linha de comando gera toda a camada
+- **Dependências centralizadas** — você atualiza o DarkStar, não 40 pacotes separados
+- **ORM expressivo** — query builder fluido estilo Eloquent, não decoradores
+
+---
+
+## Instalação
 
 ```bash
 npm install -g darkstar
@@ -41,19 +41,19 @@ npm install -g darkstar
 
 ---
 
-## Creating a project
+## Criando um projeto
 
 ```bash
-darkstar new my-project
+darkstar new meu-projeto
 ```
 
-The CLI will ask:
-- Which database? (MySQL · PostgreSQL)
+O CLI vai perguntar:
+- Qual banco de dados? (MySQL · PostgreSQL)
 
-Generated structure:
+Estrutura gerada:
 
 ```
-my-project/
+meu-projeto/
 ├── src/
 │   ├── controllers/
 │   ├── services/
@@ -79,66 +79,66 @@ my-project/
 
 ## CLI — DarkStar Forge
 
-| Command | Description |
+| Comando | Descrição |
 |---|---|
-| `darkstar new <name>` | Creates a new project |
-| `darkstar serve` | Starts the development server |
-| `darkstar forge make:api <Name>` | Generates controller + service + repository + model + routes + schema + middleware |
-| `darkstar forge make:controller <Name>` | Generates a Controller |
-| `darkstar forge make:service <Name>` | Generates a Service |
-| `darkstar forge make:repository <Name>` | Generates a Repository |
-| `darkstar forge make:model <Name>` | Generates a Model |
-| `darkstar forge make:migration <Name>` | Generates a Migration |
-| `darkstar forge make:seeder <Name>` | Generates a Seeder (reads migration fields automatically) |
-| `darkstar forge make:schema <Name>` | Generates a Schema |
-| `darkstar forge make:middleware <Name>` | Generates a Middleware |
-| `darkstar forge make:util <Name>` | Generates omitPassword and twoFactor utils |
-| `darkstar forge make:security` | Generates RateLimitMiddleware with ready-made limiters |
-| `darkstar forge db:create` | Creates the database |
-| `darkstar forge db:migrate` | Runs pending migrations |
-| `darkstar forge db:rollback` | Reverts the last migration |
-| `darkstar forge db:seed` | Populates the database with seeders |
+| `darkstar new <nome>` | Cria um novo projeto |
+| `darkstar serve` | Sobe o servidor de desenvolvimento |
+| `darkstar forge make:api <Nome>` | Gera controller + service + repository + model + rotas + schema + middleware |
+| `darkstar forge make:controller <Nome>` | Gera um Controller |
+| `darkstar forge make:service <Nome>` | Gera um Service |
+| `darkstar forge make:repository <Nome>` | Gera um Repository |
+| `darkstar forge make:model <Nome>` | Gera um Model |
+| `darkstar forge make:migration <Nome>` | Gera uma Migration |
+| `darkstar forge make:seeder <Nome>` | Gera um Seeder (lê os campos da migration automaticamente) |
+| `darkstar forge make:schema <Nome>` | Gera um Schema |
+| `darkstar forge make:middleware <Nome>` | Gera um Middleware |
+| `darkstar forge make:util <Nome>` | Gera utils de omitPassword e twoFactor |
+| `darkstar forge make:security` | Gera o RateLimitMiddleware com limiters prontos |
+| `darkstar forge db:create` | Cria o banco de dados |
+| `darkstar forge db:migrate` | Roda as migrations pendentes |
+| `darkstar forge db:rollback` | Desfaz a última migration |
+| `darkstar forge db:seed` | Popula o banco com seeders |
 
 ---
 
-## Recommended flow from scratch
+## Fluxo recomendado do zero
 
 ```bash
-# 1. Create the database
+# 1. Criar o banco de dados
 darkstar forge db:create
 
-# 2. Generate the migration
+# 2. Gerar a migration
 darkstar forge make:migration CreateUsersTable
 
-# 3. Edit the generated file in database/migrations/ with the desired fields
+# 3. Editar o arquivo gerado em database/migrations/ com os campos desejados
 
-# 4. Run the migration
+# 4. Rodar a migration
 darkstar forge db:migrate
 
-# 5. Generate the full API
+# 5. Gerar a API completa
 darkstar forge make:api User
 
-# 6. Generate the seeder (reads migration fields automatically)
+# 6. Gerar o seeder (já lê os campos da migration automaticamente)
 darkstar forge make:seeder User
 
-# 7. Populate the database
+# 7. Popular o banco
 darkstar forge db:seed
 
-# 8. Generate the utils
+# 8. Gerar os utils
 darkstar forge make:util User
 
-# 9. Generate the security rate limiters
+# 9. Gerar os rate limiters de segurança
 darkstar forge make:security
 
-# 10. Start the server
+# 10. Subir o servidor
 darkstar serve
 ```
 
 ---
 
-## Structure generated by `make:api`
+## Estrutura gerada pelo `make:api`
 
-A single `darkstar forge make:api User` command generates the entire MVC chain:
+Um único comando `darkstar forge make:api User` gera toda a cadeia MVC:
 
 **`UserController.ts`**
 
@@ -156,7 +156,7 @@ export class UserController {
 
   async show(req: DarkstarRequest, res: DarkstarResponse) {
     const data = await this.userService.findById(req.param('id')!)
-    if (!data) return res.notFound('User not found')
+    if (!data) return res.notFound('User não encontrado')
     return res.ok(data)
   }
 
@@ -239,7 +239,7 @@ export class UserMiddleware {
 
 ## Utils — `make:util`
 
-The command `darkstar forge make:util User` generates ready-made utilities in `src/utils/user/`:
+O comando `darkstar forge make:util User` gera utilitários prontos em `src/utils/user/`:
 
 **`omitPassword.ts`**
 
@@ -269,18 +269,18 @@ export function validateUserTwoFactorCode(inputCode: string, expectedCode: strin
 
 ## Security — `make:security`
 
-The command `darkstar forge make:security` generates `src/middlewares/RateLimitMiddleware.ts` with 22 ready-made limiters covering:
+O comando `darkstar forge make:security` gera o `src/middlewares/RateLimitMiddleware.ts` com 22 limiters prontos cobrindo:
 
 - **Auth** — login, register, forgot/reset password, refresh token, verify email, two-factor
-- **CRUD** — read, write, delete
-- **Files** — upload, download
-- **Real-time** — SSE, WebSocket
-- **Communication** — email, SMS, webhook
-- **Search & reports** — search, stats, report
-- **Admin** — general and destructive actions
-- **Payments** — checkout, refund
+- **CRUD** — leitura, escrita, deleção
+- **Arquivos** — upload, download
+- **Tempo real** — SSE, WebSocket
+- **Comunicação** — e-mail, SMS, webhook
+- **Busca e relatórios** — search, stats, report
+- **Admin** — geral e ações destrutivas
+- **Pagamentos** — checkout, reembolso
 
-Usage in routes:
+Uso nas rotas:
 
 ```typescript
 import { loginLimiter, registerLimiter, globalLimiter } from '../middlewares/RateLimitMiddleware'
@@ -292,9 +292,9 @@ router.use('/api',            globalLimiter)
 
 ---
 
-## Routes
+## Rotas
 
-All routes are prefixed with `/api` by default. Example with `make:api User`:
+Todas as rotas são prefixadas com `/api` por padrão. Exemplo com `make:api User`:
 
 ```
 GET    /api/users
@@ -304,48 +304,48 @@ PUT    /api/users/:id
 DELETE /api/users/:id
 ```
 
-The prefix can be changed when booting the application:
+O prefixo pode ser alterado no boot da aplicação:
 
 ```typescript
-await app.boot('/')    // no prefix
-await app.boot('/v1')  // versioned
+await app.boot('/')    // sem prefixo
+await app.boot('/v1')  // versionado
 ```
 
 ---
 
-## ORM — Eloquent-style Query Builder
+## ORM — Query Builder estilo Eloquent
 
 ```typescript
-// find all
+// buscar todos
 const users = await User.all()
 
-// find by id
+// buscar por id
 const user = await User.find(1)
 
-// chained filters
+// filtros encadeados
 const admins = await User
   .where('role', 'admin')
   .where('active', true)
   .orderBy('name')
   .get()
 
-// create
+// criar
 const user = await User.create({ name: 'Sidnei', email: 'sid@email.com' })
 
-// update
+// atualizar
 await User.where('id', 1).update({ name: 'Sidnei Jr' })
 
-// delete
+// deletar
 await User.where('id', 1).delete()
 ```
 
 ---
 
-## Inspirations
+## Inspirações
 
-- **Laravel** — for the elegance and productivity
-- **Pandorum** — for the idea of forging something new in the void of space
-- **Constellation CLI** — same spirit of automating what is repetitive
+- **Laravel** — pela elegância e produtividade
+- **Pandorum** — pela ideia de forjar algo novo no vácuo do espaço
+- **Constellation CLI** — mesmo espírito de automatizar o que é repetitivo
 
 ---
 

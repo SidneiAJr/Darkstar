@@ -1,0 +1,38 @@
+# Source & build
+src/
+*.ts
+!dist/**/*.d.ts
+tsconfig*.json
+
+# Database
+database/migrations/
+database/seeders/
+
+# Tests
+tests/
+test/
+*.test.ts
+*.spec.ts
+jest.config.*
+coverage/
+
+# Environment
+.env
+.env.*
+
+# Dev config
+.eslintrc*
+.prettierrc*
+nodemon.json
+darkstar.config.ts
+
+# Docs & meta
+README.pt-BR.md
+CHANGELOG.md
+CONTRIBUTING.md
+.github/
+
+# Misc
+node_modules/
+*.log
+.DS_Store
