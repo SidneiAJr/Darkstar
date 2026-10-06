@@ -1,5 +1,5 @@
-import { TanisApp } from '@darkstar/core'
+import { DarkstarApp } from '@darkstar/core'
 
-const app = new TanisApp()
+const app = new DarkstarApp()
 
 app.boot().then(() => app.listen())
