@@ -16,9 +16,15 @@ function pluralize(word: string): string {
 }
 
 function extractTable(name: string): string {
-  // create_products_table → products
-  const match = name.match(/^create_(.+)_table$/)
-  if (match) return match[1].toLowerCase()
+  // converte PascalCase → snake_case antes do match
+  const snake = name
+    .replace(/([A-Z])/g, '_$1')
+    .toLowerCase()
+    .replace(/^_/, '')
+
+  // create_users_table → users
+  const match = snake.match(/^create_(.+)_table$/)
+  if (match) return match[1]
 
   // fallback: pluraliza o nome direto
   return pluralize(name.toLowerCase())

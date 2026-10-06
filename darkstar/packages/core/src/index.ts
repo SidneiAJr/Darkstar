@@ -1,12 +1,10 @@
-// -----------------------------------------------
-// Tanis Core — exportações públicas
-// -----------------------------------------------
+// Darkstar Core — exportações públicas
 
-export { TanisApp }       from './app'
-export { TanisRouter, Route } from './router'
-export { TanisRequest }   from './request'
-export { TanisResponse }  from './response'
+export { TanisApp as DarkstarApp }          from './app'
+export { TanisRouter as DarkstarRouter, Route } from './router'
+export { DarkstarRequest }                  from './request'
+export { DarkstarResponse }                 from './response'
 
-export type { Request }   from './request'
-export type { Response }  from './response'
-export { Container } from './container'
+export type { Request }  from './request'
+export type { Response } from './response'
+export { Container }     from './container'

@@ -16,14 +16,6 @@ function writeFile(filePath: string, content: string) {
   success(`Criado: ${filePath}`)
 }
 
-function omitPasswordStub(name: string): string {
-  return `export function omit${name}Password<T extends Record<string, any>>(obj: T): Omit<T, 'password'> {
-  const { password, ...rest } = obj
-  return rest
-}
-`
-}
-
 function twoFactorStub(name: string): string {
   return `import * as crypto from 'crypto'
 
@@ -48,6 +40,5 @@ export function validate${name}TwoFactorCode(inputCode: string, expectedCode: st
 export function makeUtil(name: string) {
   const src = path.resolve(process.cwd(), 'src')
   const lower = name.toLowerCase()
-  writeFile(path.join(src, 'utils', lower, 'omitPassword.ts'), omitPasswordStub(name))
-  writeFile(path.join(src, 'utils', lower, 'twoFactor.ts'),    twoFactorStub(name))
+  writeFile(path.join(src, 'utils', lower, 'twoFactor.ts'), twoFactorStub(name))
 }

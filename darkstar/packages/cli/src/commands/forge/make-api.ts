@@ -29,34 +29,34 @@ function pluralize(word: string): string {
 
 function controllerStub(name: string): string {
   const lower = name.toLowerCase()
-  return `import { TanisRequest, TanisResponse } from '@darkstar/core'
+  return `import { DarkstarRequest, DarkstarResponse } from '@darkstar/core'
 import { ${name}Service } from '../services/${name}Service'
 
 export class ${name}Controller {
   constructor(private ${lower}Service: ${name}Service) {}
 
-  async index(req: TanisRequest, res: TanisResponse) {
+  async index(req: DarkstarRequest, res: DarkstarResponse) {
     const data = await this.${lower}Service.findAll()
     return res.ok(data)
   }
 
-  async show(req: TanisRequest, res: TanisResponse) {
+  async show(req: DarkstarRequest, res: DarkstarResponse) {
     const data = await this.${lower}Service.findById(req.param('id')!)
     if (!data) return res.notFound('${name} não encontrado')
     return res.ok(data)
   }
 
-  async store(req: TanisRequest, res: TanisResponse) {
+  async store(req: DarkstarRequest, res: DarkstarResponse) {
     const data = await this.${lower}Service.create(req.all())
     return res.created(data)
   }
 
-  async update(req: TanisRequest, res: TanisResponse) {
+  async update(req: DarkstarRequest, res: DarkstarResponse) {
     const data = await this.${lower}Service.update(req.param('id')!, req.all())
     return res.ok(data)
   }
 
-  async destroy(req: TanisRequest, res: TanisResponse) {
+  async destroy(req: DarkstarRequest, res: DarkstarResponse) {
     await this.${lower}Service.delete(req.param('id')!)
     return res.noContent()
   }
@@ -125,10 +125,10 @@ function schemaStub(name: string): string {
 }
 
 function middlewareStub(name: string): string {
-  return `import { TanisRequest, TanisResponse, NextFunction } from '@darkstar/core'
+  return `import { DarkstarRequest, DarkstarResponse, NextFunction } from '@darkstar/core'
 
 export class ${name}Middleware {
-  handle(req: TanisRequest, res: TanisResponse, next: NextFunction) {
+  handle(req: DarkstarRequest, res: DarkstarResponse, next: NextFunction) {
     next()
   }
 }
