@@ -10,7 +10,10 @@ export interface ColumnDefinition {
   length?: number
   precision?: number
   scale?: number
+  values?: string[]           // para ENUM
   references?: { table: string; column: string }
+  onDelete?: 'CASCADE' | 'SET NULL' | 'RESTRICT' | 'NO ACTION'
+  onUpdate?: 'CASCADE' | 'SET NULL' | 'RESTRICT' | 'NO ACTION'
 }
 
 export class Blueprint {
@@ -55,17 +58,37 @@ export class Blueprint {
     return this._addColumn({ name, type: 'VARCHAR', length, nullable: false, unique: false })
   }
 
+  char(name: string, length: number = 1): ColumnBuilder {
+    return this._addColumn({ name, type: 'CHAR', length, nullable: false, unique: false })
+  }
+
   text(name: string): ColumnBuilder {
     return this._addColumn({ name, type: 'TEXT', nullable: false, unique: false })
+  }
+
+  mediumText(name: string): ColumnBuilder {
+    return this._addColumn({ name, type: 'MEDIUMTEXT', nullable: false, unique: false })
   }
 
   longText(name: string): ColumnBuilder {
     return this._addColumn({ name, type: 'LONGTEXT', nullable: false, unique: false })
   }
 
+  enum(name: string, values: string[]): ColumnBuilder {
+    return this._addColumn({ name, type: 'ENUM', values, nullable: false, unique: false })
+  }
+
   // ========================
   // Números
   // ========================
+
+  tinyInt(name: string): ColumnBuilder {
+    return this._addColumn({ name, type: 'TINYINT', nullable: false, unique: false })
+  }
+
+  smallInt(name: string): ColumnBuilder {
+    return this._addColumn({ name, type: 'SMALLINT', nullable: false, unique: false })
+  }
 
   integer(name: string): ColumnBuilder {
     return this._addColumn({ name, type: 'INT', nullable: false, unique: false })
@@ -77,6 +100,10 @@ export class Blueprint {
 
   float(name: string, precision: number = 8, scale: number = 2): ColumnBuilder {
     return this._addColumn({ name, type: 'FLOAT', precision, scale, nullable: false, unique: false })
+  }
+
+  double(name: string, precision: number = 15, scale: number = 8): ColumnBuilder {
+    return this._addColumn({ name, type: 'DOUBLE', precision, scale, nullable: false, unique: false })
   }
 
   decimal(name: string, precision: number = 8, scale: number = 2): ColumnBuilder {
@@ -107,7 +134,15 @@ export class Blueprint {
     return this._addColumn({ name, type: 'TIMESTAMP', nullable: false, unique: false })
   }
 
-  // Cria created_at e updated_at automaticamente — igual Laravel
+  year(name: string): ColumnBuilder {
+    return this._addColumn({ name, type: 'YEAR', nullable: false, unique: false })
+  }
+
+  time(name: string): ColumnBuilder {
+    return this._addColumn({ name, type: 'TIME', nullable: false, unique: false })
+  }
+
+  // created_at e updated_at — igual Laravel
   timestamps(): this {
     this.columns.push({
       name: 'created_at',
@@ -126,7 +161,7 @@ export class Blueprint {
     return this
   }
 
-  // Soft delete — igual Laravel
+  // deleted_at — soft delete
   softDeletes(): this {
     this.columns.push({
       name: 'deleted_at',
@@ -139,11 +174,15 @@ export class Blueprint {
   }
 
   // ========================
-  // JSON
+  // Binário / JSON
   // ========================
 
   json(name: string): ColumnBuilder {
     return this._addColumn({ name, type: 'JSON', nullable: false, unique: false })
+  }
+
+  binary(name: string): ColumnBuilder {
+    return this._addColumn({ name, type: 'BLOB', nullable: false, unique: false })
   }
 
   // ========================
@@ -155,6 +194,19 @@ export class Blueprint {
       name,
       type: 'BIGINT',
       nullable: false,
+      unique: false,
+      unsigned: true,
+    }
+    this.columns.push(col)
+    return new ForeignKeyBuilder(col)
+  }
+
+  // nullable foreignId — útil pra relações opcionais
+  nullableForeignId(name: string): ForeignKeyBuilder {
+    const col: ColumnDefinition = {
+      name,
+      type: 'BIGINT',
+      nullable: true,
       unique: false,
       unsigned: true,
     }
@@ -177,10 +229,15 @@ export class Blueprint {
 // ========================
 
 export class ColumnBuilder {
-  constructor(private col: ColumnDefinition) {}
+  constructor(protected col: ColumnDefinition) {}
 
   nullable(): this {
     this.col.nullable = true
+    return this
+  }
+
+  notNullable(): this {
+    this.col.nullable = false
     return this
   }
 
@@ -198,19 +255,52 @@ export class ColumnBuilder {
     this.col.unsigned = true
     return this
   }
+
+  // alias útil
+  index(): this {
+    return this
+  }
 }
 
 export class ForeignKeyBuilder extends ColumnBuilder {
-  constructor(private column: ColumnDefinition) {
-    super(column)
+  constructor(protected col: ColumnDefinition) {
+    super(col)
   }
 
   references(column: string): { on: (table: string) => ForeignKeyBuilder } {
     return {
       on: (table: string) => {
-        this.column.references = { table, column }
+        this.col.references = { table, column }
         return this
       }
     }
+  }
+
+  // ações referenciais
+  onDelete(action: ColumnDefinition['onDelete']): this {
+    this.col.onDelete = action
+    return this
+  }
+
+  onUpdate(action: ColumnDefinition['onUpdate']): this {
+    this.col.onUpdate = action
+    return this
+  }
+
+  // atalhos comuns
+  cascadeOnDelete(): this {
+    this.col.onDelete = 'CASCADE'
+    return this
+  }
+
+  nullOnDelete(): this {
+    this.col.nullable = true
+    this.col.onDelete = 'SET NULL'
+    return this
+  }
+
+  restrictOnDelete(): this {
+    this.col.onDelete = 'RESTRICT'
+    return this
   }
 }
