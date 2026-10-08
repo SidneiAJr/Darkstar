@@ -29,7 +29,7 @@ function pluralize(word: string): string {
 
 function controllerStub(name: string): string {
   const lower = name.toLowerCase()
-  return `import { DarkstarRequest, DarkstarResponse } from '@darkstar/core'
+  return `import { DarkstarRequest, DarkstarResponse } from 'darkstar-core'
 import { ${name}Service } from '../services/${name}Service'
 
 export class ${name}Controller {
@@ -95,7 +95,7 @@ export class ${name}Repository {
 
 function modelStub(name: string): string {
   const table = pluralize(name.toLowerCase())
-  return `import { Model } from '@darkstar/orm'
+  return `import { Model } from 'darkstar-orm'
 
 export class ${name} extends Model {
   static table = '${table}'
@@ -106,7 +106,7 @@ export class ${name} extends Model {
 function routeStub(name: string): string {
   const lower = name.toLowerCase()
   const plural = pluralize(lower)
-  return `import { Route, Container } from '@darkstar/core'
+  return `import { Route, Container } from 'darkstar-core'
 import { ${name}Controller } from '../controllers/${name}Controller'
 import { ${name}Service } from '../services/${name}Service'
 import { ${name}Repository } from '../repositories/${name}Repository'
@@ -125,7 +125,7 @@ function schemaStub(name: string): string {
 }
 
 function middlewareStub(name: string): string {
-  return `import { DarkstarRequest, DarkstarResponse, NextFunction } from '@darkstar/core'
+  return `import { DarkstarRequest, DarkstarResponse, NextFunction } from 'darkstar-core'
 
 export class ${name}Middleware {
   handle(req: DarkstarRequest, res: DarkstarResponse, next: NextFunction) {

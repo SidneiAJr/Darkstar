@@ -46,15 +46,14 @@ function configureEnv(projectPath: string, projectName: string) {
 
 function configurePackageJson(projectPath: string, projectName: string) {
   const pkgPath = path.join(projectPath, 'package.json')
-  const monorepoRoot = path.resolve(__dirname, '../../../../')
 
   const deps: Record<string, string> = {
-    '@darkstar/core':       `file:${path.join(monorepoRoot, 'packages/core').replace(/\\/g, '/')}`,
-    '@darkstar/orm':        `file:${path.join(monorepoRoot, 'packages/orm').replace(/\\/g, '/')}`,
-    'dotenv':               'latest',
-    'express':              'latest',
-    'express-rate-limit':   'latest',
-    'zod':                  'latest',
+    'darkstar-core':       '0.0.1',
+    'darkstar-orm':        '0.0.1',
+    'dotenv':              'latest',
+    'express':             'latest',
+    'express-rate-limit':  'latest',
+    'zod':                 'latest',
   }
 
   const pkg = {
@@ -102,7 +101,7 @@ export async function runNew(name: string) {
     process.exit(1)
   }
 
-  const templatePath = path.resolve(__dirname, '../../../../templates/project')
+  const templatePath = path.resolve(__dirname, '../../templates/project')
 
   info('Copiando estrutura do projeto...')
   copyTemplate(templatePath, projectPath)

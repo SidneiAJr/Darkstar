@@ -17,7 +17,7 @@ function writeFile(filePath: string, content: string) {
 }
 
 function stub(name: string): string {
-  return `import { TanisRequest, TanisResponse, NextFunction } from '@darkstar/core'
+  return `import { TanisRequest, TanisResponse, NextFunction } from 'darkstar-core'
 
 export class ${name}Middleware {
   handle(req: TanisRequest, res: TanisResponse, next: NextFunction) {

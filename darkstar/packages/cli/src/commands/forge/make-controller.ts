@@ -17,7 +17,7 @@ function writeFile(filePath: string, content: string) {
 }
 
 function stub(name: string): string {
-  return `import { DarkstarRequest, DarkstarResponse } from '@darkstar/core'
+  return `import { DarkstarRequest, DarkstarResponse } from 'darkstar-core'
 import { ${name}Service } from '../services/${name}Service'
 
 export class ${name}Controller {

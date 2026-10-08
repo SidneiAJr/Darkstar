@@ -1,6 +1,6 @@
 import kleur from 'kleur'
 import * as path from 'path'
-import { Connection } from '@darkstar/orm'
+import { Connection } from 'darkstar-orm'
 
 function success(msg: string) { console.log(kleur.green('  ✔ ') + msg) }
 function info(msg: string)    { console.log(kleur.cyan('  → ') + msg) }
