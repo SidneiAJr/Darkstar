@@ -34,7 +34,7 @@ class Post extends Model {
 
 describe('Model — findAll()', () => {
   it('retorna todos os registros da tabela', async () => {
-    const driver = makeDriver([{ id: 1, name: 'Teste' }, { id: 2, name: 'Ana' }])
+    const driver = makeDriver([{ id: 1, name: 'Teste' }, { id: 2, name: 'Maria' }])
     vi.spyOn(Connection, 'get').mockReturnValue(driver)
 
     const result = await User.findAll()
