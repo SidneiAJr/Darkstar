@@ -2,8 +2,12 @@
 > ## ⚠️ VERSÃO ALPHA — NÃO USE EM PRODUÇÃO
 > O DarkStar está em **alpha inicial**. As APIs vão mudar sem aviso prévio. O pacote não é estável — use por sua conta e risco.
 
+> [!WARNING]
+> ## 🧪 ORM PRÓPRIO — SEM SUPORTE A RELACIONAMENTOS
+> O DarkStar usa um **ORM próprio** inspirado no Eloquent, construído do zero para Node.js. Ele **não é o Prisma, TypeORM ou Sequelize**. Relacionamentos (`hasOne`, `hasMany`, `belongsTo`), eager loading e transações ainda **não estão implementados**. Consulte a seção de Limitações Conhecidas antes de usar.
+
 > [!NOTE]
-> 📦 O DarkStar ainda não foi publicado no npm. O pacote está em fase de testes — a publicação acontecerá quando o core estiver estável.
+> 📦 O DarkStar foi publicado no npm como **`darkstar-cli`**. Instale com `npm install -g darkstar-cli`.
 
 # 🪐 DarkStar — Backend Framework for Node.js
 
@@ -29,14 +33,14 @@ O **DarkStar** nasceu pra resolver isso: um framework Node.js com a clareza e pr
 - **MVC como cidadão de primeira classe** — Controller → Service → Repository é o padrão, não uma opinião
 - **CLI que faz o trabalho pesado** — uma linha de comando gera toda a camada
 - **Dependências centralizadas** — você atualiza o DarkStar, não 40 pacotes separados
-- **ORM expressivo** — query builder fluido estilo Eloquent, não decoradores
+- **ORM próprio expressivo** — query builder fluido estilo Eloquent, construído do zero para Node.js, sem decoradores
 
 ---
 
 ## Instalação
 
 ```bash
-npm install -g darkstar
+npm install -g darkstar-cli
 ```
 
 ---
@@ -143,7 +147,7 @@ Um único comando `darkstar forge make:api User` gera toda a cadeia MVC:
 **`UserController.ts`**
 
 ```typescript
-import { DarkstarRequest, DarkstarResponse } from '@darkstar/core'
+import { DarkstarRequest, DarkstarResponse } from 'darkstar-core'
 import { UserService } from '../services/UserService'
 
 export class UserController {
@@ -210,7 +214,7 @@ export class UserRepository {
 **`User.ts`**
 
 ```typescript
-import { Model } from '@darkstar/orm'
+import { Model } from 'darkstar-orm'
 
 export class User extends Model {
   static table = 'users'
@@ -226,7 +230,7 @@ export const UserSchema = {}
 **`UserMiddleware.ts`**
 
 ```typescript
-import { DarkstarRequest, DarkstarResponse, NextFunction } from '@darkstar/core'
+import { DarkstarRequest, DarkstarResponse, NextFunction } from 'darkstar-core'
 
 export class UserMiddleware {
   handle(req: DarkstarRequest, res: DarkstarResponse, next: NextFunction) {
@@ -313,7 +317,10 @@ await app.boot('/v1')  // versionado
 
 ---
 
-## ORM — Query Builder estilo Eloquent
+## ORM Próprio — Query Builder estilo Eloquent
+
+> [!WARNING]
+> O ORM do DarkStar é um projeto independente (`darkstar-orm`), construído do zero. Não confunda com Prisma, TypeORM ou Sequelize. Veja as limitações conhecidas antes de usar em produção.
 
 ```typescript
 // buscar todos
@@ -362,8 +369,8 @@ O DarkStar está em **alpha inicial**. As limitações abaixo são conhecidas e 
 
 ### CLI
 
-- **`darkstar new` usa caminhos `file:` locais** — o `package.json` gerado referencia `@darkstar/core` e `@darkstar/orm` como caminhos `file:` apontando para o monorepo. Isso será atualizado para versões npm na publicação.
-- **`make:model` gera um stub com `createModel` que não existe no `@darkstar/orm`** — o comando `make:model` isolado gera `import { createModel, Model }`, que não é exportado pelo ORM. Use `make:api` ou copie o stub de model a partir dele.
+- **`darkstar new` usa caminhos `file:` locais** — o `package.json` gerado referencia `darkstar-core` e `darkstar-orm` como caminhos `file:` apontando para o monorepo. Isso será atualizado para versões npm na publicação.
+- **`make:model` gera um stub com `createModel` que não existe no `darkstar-orm`** — o comando `make:model` isolado gera `import { createModel, Model }`, que não é exportado pelo ORM. Use `make:api` ou copie o stub de model a partir dele.
 - **`make:middleware` gera imports com `TanisRequest`/`TanisResponse`** — o comando `make:middleware` isolado ainda usa os aliases antigos `Tanis*`. Funcionam em runtime, mas são inconsistentes com a nomenclatura `Darkstar*` usada em todo o resto.
 - **`darkstar serve` executa `npm run dev`** — assume que o projeto tem um script `dev` no `package.json`. Se você renomear, `darkstar serve` vai falhar.
 - **O registro automático de seeders depende do comentário `// registre seus seeders aqui`** — se esse comentário for removido ou modificado no `DatabaseSeeder.ts`, o `make:seeder` não vai registrar o novo seeder automaticamente.

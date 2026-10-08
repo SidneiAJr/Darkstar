@@ -1,5 +1,5 @@
 {
-  "name": "@darkstar/cli",
+  "name": "darkstar-cli",
   "version": "0.0.1",
   "description": "CLI do framework DarkStar — backend Node.js inspirado no Laravel",
   "license": "MIT",
@@ -7,20 +7,20 @@
   "homepage": "https://darkstarguia.vercel.app",
   "repository": {
     "type": "git",
-    "url": "https://github.com/seu-usuario/darkstar"
+    "url": "https://github.com/Albertaodasmassa/darkstar"
   },
+  "engines": { "node": ">=18.0.0" },
   "keywords": ["darkstar", "cli", "framework", "nodejs", "mvc"],
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "bin": {
     "darkstar": "dist/index.js"
   },
   "files": ["dist"],
-  "scripts": {
-    "build": "tsc --build"
-  },
+  "scripts": { "build": "tsc --build" },
   "dependencies": {
-    "@darkstar/orm": "0.0.1",
-    "@darkstar/core": "0.0.1",
+    "darkstar-orm": "0.0.1",
+    "darkstar-core": "0.0.1",
     "commander": "^15.0.0",
     "inquirer": "^14.2.2",
     "kleur": "^4.1.5"
