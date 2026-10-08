@@ -364,7 +364,7 @@ O DarkStar está em **alpha inicial**. As limitações abaixo são conhecidas e 
 
 ### Container IoC
 
-- **Resolução de dependências é baseada no nome dos parâmetros do construtor** — o container analisa o código-fonte do construtor como string para inferir dependências. Isso quebra quando o código é minificado, bundled ou compilado de forma que renomeia parâmetros. Não use com bundlers que fazem mangling de variáveis (ex: esbuild com `minifyIdentifiers: true`).
+- **Resolução de dependências é baseada no nome dos parâmetros do construtor** — o container teste2lisa o código-fonte do construtor como string para inferir dependências. Isso quebra quando o código é minificado, bundled ou compilado de forma que renomeia parâmetros. Não use com bundlers que fazem mangling de variáveis (ex: esbuild com `minifyIdentifiers: true`).
 - **Sem detecção de dependências circulares** — dependências circulares causarão stack overflow sem mensagem de erro útil.
 
 ### CLI

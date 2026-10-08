@@ -89,13 +89,13 @@ const user = await User.findById(1)
 const admins = await User.findBy('role', 'admin')
 
 // primeiro resultado por coluna
-const pedro = await User.findFirstBy('email', 'pedro@email.com')
+const teste = await User.findFirstBy('email', 'teste@email.com')
 
 // criar
-const novo = await User.create({ name: 'Pedro', email: 'pedro@email.com' })
+const novo = await User.create({ name: 'teste', email: 'teste@email.com' })
 
 // atualizar
-await User.update(1, { name: 'Pedro Henrique' })
+await User.update(1, { name: 'teste teste' })
 
 // deletar
 await User.delete(1)
@@ -168,8 +168,8 @@ const users = await User.query()
 **whereLike**:
 
 ```typescript
-.whereLike('name', '%pedro%')
-// WHERE name LIKE "%pedro%"
+.whereLike('name', '%teste%')
+// WHERE name LIKE "%teste%"
 ```
 
 > O DarkStar não tem `orWhere` ainda. Múltiplos `.where()` sempre geram `AND`.
@@ -215,13 +215,13 @@ const resultado = await User.query()
 const users = await User.query().where('active', true).get()
 
 // retorna um ou null
-const user = await User.query().where('email', 'pedro@email.com').first()
+const user = await User.query().where('email', 'teste@email.com').first()
 
 // conta
 const total = await User.query().where('role', 'admin').count()
 
 // existe?
-const existe = await User.query().where('email', 'pedro@email.com').exists()
+const existe = await User.query().where('email', 'teste@email.com').exists()
 ```
 
 ---
@@ -232,8 +232,8 @@ const existe = await User.query().where('email', 'pedro@email.com').exists()
 
 ```typescript
 const user = await User.query().create({
-  name: 'Pedro',
-  email: 'pedro@email.com',
+  name: 'teste',
+  email: 'teste@email.com',
   role: 'admin',
 })
 ```
@@ -243,7 +243,7 @@ const user = await User.query().create({
 ```typescript
 const afetadas = await User.query()
   .where('id', 1)
-  .update({ name: 'Pedro Henrique' })
+  .update({ name: 'teste teste' })
 ```
 
 **delete** — deleta as linhas que batem com os wheres, retorna linhas afetadas:

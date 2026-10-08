@@ -330,10 +330,10 @@ const admins = await User
   .get()
 
 // criar
-const user = await User.create({ name: 'Sidnei', email: 'sid@email.com' })
+const user = await User.create({ name: 'teste3', email: 'sid@email.com' })
 
 // atualizar
-await User.where('id', 1).update({ name: 'Sidnei Jr' })
+await User.where('id', 1).update({ name: 'teste3 Jr' })
 
 // deletar
 await User.where('id', 1).delete()

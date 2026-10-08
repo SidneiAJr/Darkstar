@@ -27,7 +27,7 @@ The DarkStar ORM is made up of four layers: **Connection**, **Model**, **QueryBu
 
 ## Connection
 
-The connection is managed by the `Connection` class. It reads `.env` and automatically instantiates the correct driver. You don't instantiate drivers manually.
+The connection is mteste2ged by the `Connection` class. It reads `.env` and automatically instantiates the correct driver. You don't instantiate drivers manually.
 
 ```env
 DB_CONNECTION=mysql       # sqlite | mysql | mariadb | postgres
@@ -88,13 +88,13 @@ const user = await User.findById(1)
 const admins = await User.findBy('role', 'admin')
 
 // first result by column
-const pedro = await User.findFirstBy('email', 'pedro@email.com')
+const teste = await User.findFirstBy('email', 'teste@email.com')
 
 // create
-const newUser = await User.create({ name: 'Pedro', email: 'pedro@email.com' })
+const newUser = await User.create({ name: 'teste', email: 'teste@email.com' })
 
 // update
-await User.update(1, { name: 'Pedro Henrique' })
+await User.update(1, { name: 'teste teste' })
 
 // delete
 await User.delete(1)
@@ -167,8 +167,8 @@ const users = await User.query()
 **whereLike**:
 
 ```typescript
-.whereLike('name', '%pedro%')
-// WHERE name LIKE "%pedro%"
+.whereLike('name', '%teste%')
+// WHERE name LIKE "%teste%"
 ```
 
 > DarkStar does not have `orWhere` yet. Multiple `.where()` calls always generate `AND`.
@@ -214,13 +214,13 @@ const result = await User.query()
 const users = await User.query().where('active', true).get()
 
 // returns one or null
-const user = await User.query().where('email', 'pedro@email.com').first()
+const user = await User.query().where('email', 'teste@email.com').first()
 
 // count
 const total = await User.query().where('role', 'admin').count()
 
 // exists?
-const exists = await User.query().where('email', 'pedro@email.com').exists()
+const exists = await User.query().where('email', 'teste@email.com').exists()
 ```
 
 ---
@@ -231,8 +231,8 @@ const exists = await User.query().where('email', 'pedro@email.com').exists()
 
 ```typescript
 const user = await User.query().create({
-  name: 'Pedro',
-  email: 'pedro@email.com',
+  name: 'teste',
+  email: 'teste@email.com',
   role: 'admin',
 })
 ```
@@ -242,7 +242,7 @@ const user = await User.query().create({
 ```typescript
 const affected = await User.query()
   .where('id', 1)
-  .update({ name: 'Pedro Henrique' })
+  .update({ name: 'teste teste' })
 ```
 
 **delete** — deletes the rows matching the wheres, returns affected rows:

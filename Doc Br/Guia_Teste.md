@@ -172,7 +172,7 @@ O coração do ORM — transforma chamadas TypeScript em SQL.
 | `.where().where()` | `WHERE ... AND ...` |
 | `.whereIn('id', [1,2,3])` | `WHERE id IN (1, 2, 3)` |
 | `.whereNotIn('id', [4,5])` | `WHERE id NOT IN (4, 5)` |
-| `.whereLike('name', '%pedro%')` | `WHERE name LIKE "%pedro%"` |
+| `.whereLike('name', '%teste%')` | `WHERE name LIKE "%teste%"` |
 | `.orderBy('name')` | `ORDER BY name ASC` |
 | `.orderBy('created_at', 'desc')` | `ORDER BY created_at DESC` |
 | `.limit(10).offset(20)` | `LIMIT 10 OFFSET 20` |
