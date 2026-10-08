@@ -1,7 +1,18 @@
 {
   "name": "@darkstar/core",
-  "version": "1.0.0",
+  "version": "0.0.1",
+  "description": "Core do framework DarkStar — backend Node.js inspirado no Laravel",
+  "license": "MIT",
+  "author": "Albertaodasmassa",
+  "homepage": "https://darkstarguia.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/seu-usuario/darkstar"
+  },
+  "keywords": ["darkstar", "framework", "nodejs", "mvc", "express"],
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
   "scripts": {
     "build": "tsc --build"
   },

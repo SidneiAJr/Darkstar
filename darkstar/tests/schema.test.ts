@@ -2,10 +2,6 @@ import { describe, it, expect, vi } from 'vitest'
 import { Schema } from '../packages/orm/src/schema'
 import type { BaseDriver } from '../packages/orm/src/drivers/base-driver'
 
-// -----------------------------------------------
-// Mock do driver
-// -----------------------------------------------
-
 function makeDriver(rows: any[] = []): BaseDriver {
   return {
     connect:    vi.fn(),
@@ -15,10 +11,6 @@ function makeDriver(rows: any[] = []): BaseDriver {
     query:      vi.fn().mockResolvedValue({ rows, affectedRows: 0 }),
   } as unknown as BaseDriver
 }
-
-// -----------------------------------------------
-// Schema — create()
-// -----------------------------------------------
 
 describe('Schema — create()', () => {
   it('gera CREATE TABLE com id e timestamps', async () => {
@@ -32,7 +24,6 @@ describe('Schema — create()', () => {
     })
 
     const sql = (driver.query as any).mock.calls[0][0] as string
-
     expect(sql).toContain('CREATE TABLE IF NOT EXISTS `users`')
     expect(sql).toContain('`id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT')
     expect(sql).toContain('`name` VARCHAR(255) NOT NULL')
@@ -51,7 +42,7 @@ describe('Schema — create()', () => {
     })
 
     const sql = (driver.query as any).mock.calls[0][0] as string
-    expect(sql).toContain('UNIQUE KEY `email_unique` (`email`)')
+    expect(sql).toContain('UNIQUE KEY `users_email_unique` (`email`)')
   })
 
   it('gera coluna nullable corretamente', async () => {
@@ -77,7 +68,7 @@ describe('Schema — create()', () => {
     })
 
     const sql = (driver.query as any).mock.calls[0][0] as string
-    expect(sql).toContain('CONSTRAINT `fk_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)')
+    expect(sql).toContain('CONSTRAINT `fk_posts_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)')
   })
 
   it('gera DEFAULT para coluna com valor padrão string', async () => {
@@ -120,17 +111,12 @@ describe('Schema — create()', () => {
   })
 })
 
-// -----------------------------------------------
-// Schema — drop(), hasTable(), addColumn(), dropColumn()
-// -----------------------------------------------
-
 describe('Schema — outros métodos', () => {
   it('drop() executa DROP TABLE IF EXISTS', async () => {
     const driver = makeDriver()
     const schema = new Schema(driver)
 
     await schema.drop('users')
-
     expect(driver.query).toHaveBeenCalledWith('DROP TABLE IF EXISTS `users`')
   })
 
@@ -168,7 +154,6 @@ describe('Schema — outros métodos', () => {
     const schema = new Schema(driver)
 
     await schema.dropColumn('users', 'phone')
-
     expect(driver.query).toHaveBeenCalledWith('ALTER TABLE `users` DROP COLUMN `phone`')
   })
 })

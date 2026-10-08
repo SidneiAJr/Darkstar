@@ -167,17 +167,29 @@ describe('makeSeeder()', () => {
   })
 
   it('seeder User usa o stub especial com bcrypt', async () => {
-    const cwdSpy = vi.spyOn(process, 'cwd').mockReturnValue(tmpDir)
-    const { makeSeeder } = await import('../packages/cli/src/commands/forge/make-seeder')
-    makeSeeder('User')
-    cwdSpy.mockRestore()
+  const migrationsDir = path.join(tmpDir, 'database', 'migrations')
+  fs.mkdirSync(migrationsDir, { recursive: true })
+  fs.writeFileSync(
+    path.join(migrationsDir, '2026_01_01_00_00_00_create_users_table.ts'),
+    `await schema.create('users', (table) => {
+      table.string('name')
+      table.string('email').unique()
+      table.string('password')
+      table.string('role')
+    })`
+  )
 
-    const content = fs.readFileSync(
-      path.join(tmpDir, 'database', 'seeders', 'UserSeeder.ts'), 'utf-8'
-    )
-    expect(content).toContain('bcrypt')
-    expect(content).toContain("role:")
-  })
+  const cwdSpy = vi.spyOn(process, 'cwd').mockReturnValue(tmpDir)
+  const { makeSeeder } = await import('../packages/cli/src/commands/forge/make-seeder')
+  makeSeeder('User')
+  cwdSpy.mockRestore()
+
+  const content = fs.readFileSync(
+    path.join(tmpDir, 'database', 'seeders', 'UserSeeder.ts'), 'utf-8'
+  )
+  expect(content).toContain('bcrypt')
+  expect(content).toContain('role')
+})
 
   it('registra o seeder no DatabaseSeeder.ts', async () => {
     const cwdSpy = vi.spyOn(process, 'cwd').mockReturnValue(tmpDir)

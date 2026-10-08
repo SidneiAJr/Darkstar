@@ -1,7 +1,18 @@
 {
   "name": "@darkstar/orm",
-  "version": "1.0.0",
+  "version": "0.0.1",
+  "description": "ORM do framework DarkStar — QueryBuilder estilo Eloquent para Node.js",
+  "license": "MIT",
+  "author": "Albertaodasmassa",
+  "homepage": "https://darkstarguia.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/seu-usuario/darkstar"
+  },
+  "keywords": ["darkstar", "orm", "querybuilder", "nodejs", "mysql", "postgres"],
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
   "scripts": {
     "build": "tsc --build"
   },

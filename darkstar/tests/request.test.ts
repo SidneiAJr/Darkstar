@@ -26,8 +26,8 @@ function makeReq(overrides: Record<string, any> = {}) {
 
 describe('TanisRequest — body', () => {
   it('input() retorna campo do body', () => {
-    const req = new TanisRequest(makeReq({ body: { name: 'Pedro' } }))
-    expect(req.input('name')).toBe('Pedro')
+    const req = new TanisRequest(makeReq({ body: { name: 'Teste' } }))
+    expect(req.input('name')).toBe('Teste')
   })
 
   it('input() retorna fallback quando campo ausente', () => {
@@ -36,27 +36,27 @@ describe('TanisRequest — body', () => {
   })
 
   it('only() retorna apenas os campos pedidos', () => {
-    const req = new TanisRequest(makeReq({ body: { name: 'Pedro', email: 'p@p.com', password: '123' } }))
-    expect(req.only('name', 'email')).toEqual({ name: 'Pedro', email: 'p@p.com' })
+    const req = new TanisRequest(makeReq({ body: { name: 'Teste', email: 'p@p.com', password: '123' } }))
+    expect(req.only('name', 'email')).toEqual({ name: 'Teste', email: 'p@p.com' })
   })
 
   it('only() ignora campos ausentes no body', () => {
-    const req = new TanisRequest(makeReq({ body: { name: 'Pedro' } }))
-    expect(req.only('name', 'email')).toEqual({ name: 'Pedro' })
+    const req = new TanisRequest(makeReq({ body: { name: 'Teste' } }))
+    expect(req.only('name', 'email')).toEqual({ name: 'Teste' })
   })
 
   it('except() retorna body sem os campos excluídos', () => {
-    const req = new TanisRequest(makeReq({ body: { name: 'Pedro', email: 'p@p.com', password: '123' } }))
-    expect(req.except('password')).toEqual({ name: 'Pedro', email: 'p@p.com' })
+    const req = new TanisRequest(makeReq({ body: { name: 'Teste', email: 'p@p.com', password: '123' } }))
+    expect(req.except('password')).toEqual({ name: 'Teste', email: 'p@p.com' })
   })
 
   it('all() combina body + query + params', () => {
     const req = new TanisRequest(makeReq({
-      body:   { name: 'Pedro' },
+      body:   { name: 'Teste' },
       query:  { page: '1' },
       params: { id: '42' },
     }))
-    expect(req.all()).toEqual({ name: 'Pedro', page: '1', id: '42' })
+    expect(req.all()).toEqual({ name: 'Teste', page: '1', id: '42' })
   })
 
   it('has() retorna true quando campo existe no body', () => {

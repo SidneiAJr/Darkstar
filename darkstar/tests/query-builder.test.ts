@@ -57,8 +57,8 @@ describe('QueryBuilder — toSql()', () => {
 
   it('whereLike gera LIKE', () => {
     const qb = new QueryBuilder(makeDriver(), 'users')
-    qb.whereLike('name', '%pedro%')
-    expect(qb.toSql()).toBe('SELECT * FROM users WHERE name LIKE "%pedro%"')
+    qb.whereLike('name', '%teste%')
+    expect(qb.toSql()).toBe('SELECT * FROM users WHERE name LIKE "%teste%"')
   })
 
   it('orderBy ASC (padrão)', () => {
@@ -104,7 +104,7 @@ describe('QueryBuilder — toSql()', () => {
 
 describe('QueryBuilder — execução', () => {
   it('get() retorna rows do driver', async () => {
-    const fakeRows = [{ id: 1, name: 'Pedro' }]
+    const fakeRows = [{ id: 1, name: 'Teste' }]
     const driver = makeDriver(fakeRows)
     const result = await new QueryBuilder(driver, 'users').get()
     expect(result).toEqual(fakeRows)

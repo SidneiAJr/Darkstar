@@ -34,7 +34,7 @@ class Post extends Model {
 
 describe('Model — findAll()', () => {
   it('retorna todos os registros da tabela', async () => {
-    const driver = makeDriver([{ id: 1, name: 'Pedro' }, { id: 2, name: 'Ana' }])
+    const driver = makeDriver([{ id: 1, name: 'Teste' }, { id: 2, name: 'Ana' }])
     vi.spyOn(Connection, 'get').mockReturnValue(driver)
 
     const result = await User.findAll()
@@ -54,12 +54,12 @@ describe('Model — findAll()', () => {
 
 describe('Model — findById()', () => {
   it('retorna o registro pelo id', async () => {
-    const driver = makeDriver([{ id: 42, name: 'Pedro' }])
+    const driver = makeDriver([{ id: 42, name: 'Teste' }])
     vi.spyOn(Connection, 'get').mockReturnValue(driver)
 
     const result = await User.findById(42)
 
-    expect(result).toEqual({ id: 42, name: 'Pedro' })
+    expect(result).toEqual({ id: 42, name: 'Teste' })
     expect(driver.query).toHaveBeenCalledWith(
       'SELECT * FROM users WHERE id = ? LIMIT 1', [42]
     )
@@ -115,12 +115,12 @@ describe('Model — findFirstBy()', () => {
 
 describe('Model — create()', () => {
   it('insere um registro e retorna o objeto criado', async () => {
-    const driver = makeDriver([{ id: 1, name: 'Pedro', email: 'p@p.com' }], 1)
+    const driver = makeDriver([{ id: 1, name: 'Teste', email: 'p@p.com' }], 1)
     vi.spyOn(Connection, 'get').mockReturnValue(driver)
 
-    const result = await User.create({ name: 'Pedro', email: 'p@p.com' } as any)
+    const result = await User.create({ name: 'Teste', email: 'p@p.com' } as any)
 
-    expect(result).toMatchObject({ id: 1, name: 'Pedro' })
+    expect(result).toMatchObject({ id: 1, name: 'Teste' })
     expect(driver.query).toHaveBeenCalledWith(
       expect.stringContaining('INSERT INTO users'), expect.any(Array)
     )
@@ -129,10 +129,10 @@ describe('Model — create()', () => {
 
 describe('Model — update()', () => {
   it('atualiza o registro pelo id', async () => {
-    const driver = makeDriver([{ id: 1, name: 'Pedro Atualizado' }], undefined, 1)
+    const driver = makeDriver([{ id: 1, name: 'Teste Atualizado' }], undefined, 1)
     vi.spyOn(Connection, 'get').mockReturnValue(driver)
 
-    const result = await User.update(1, { name: 'Pedro Atualizado' } as any)
+    const result = await User.update(1, { name: 'Teste Atualizado' } as any)
 
     expect(driver.query).toHaveBeenCalledWith(
       expect.stringContaining('UPDATE users'), expect.any(Array)

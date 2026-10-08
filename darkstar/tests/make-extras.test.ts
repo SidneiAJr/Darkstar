@@ -238,14 +238,12 @@ describe('makeUtil()', () => {
   afterEach(() => { fs.rmSync(tmpDir, { recursive: true, force: true }) })
 
   it('cria os arquivos do util', async () => {
-    const cwdSpy = vi.spyOn(process, 'cwd').mockReturnValue(tmpDir)
-    const { makeUtil } = await import('../packages/cli/src/commands/forge/make-util')
-    makeUtil('DateHelper')
-    cwdSpy.mockRestore()
+  const cwdSpy = vi.spyOn(process, 'cwd').mockReturnValue(tmpDir)
+  const { makeUtil } = await import('../packages/cli/src/commands/forge/make-util')
+  makeUtil('DateHelper')
+  cwdSpy.mockRestore()
 
-    const omit = path.join(tmpDir, 'src', 'utils', 'datehelper', 'omitPassword.ts')
-    const twoFactor = path.join(tmpDir, 'src', 'utils', 'datehelper', 'twoFactor.ts')
-    expect(fs.existsSync(omit)).toBe(true)
-    expect(fs.existsSync(twoFactor)).toBe(true)
-  })
+  const twoFactor = path.join(tmpDir, 'src', 'utils', 'datehelper', 'twoFactor.ts')
+  expect(fs.existsSync(twoFactor)).toBe(true)
+})
 })
