@@ -7,7 +7,7 @@
   "homepage": "https://darkstarguia.vercel.app",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Albertaodasmassa/darkstar"
+    "url": "https://github.com/SidneiAJr/Darkstar"
   },
   "engines": { "node": ">=18.0.0" },
   "keywords": ["darkstar", "framework", "nodejs", "mvc", "express"],
