@@ -1,9 +1,8 @@
-import { Seeder } from './Seeder.ts'
+import { Seeder } from './Seeder'
 
 export class DatabaseSeeder {
   private seeders: Seeder[] = [
     // registre seus seeders aqui
-    // ex: new UserSeeder(),
   ]
 
   async run() {

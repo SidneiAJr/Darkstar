@@ -1,6 +1,7 @@
 import kleur from 'kleur'
 import * as fs from 'fs'
 import * as path from 'path'
+import { execSync } from 'child_process' // ← adiciona essa linha
 
 function success(msg: string) { console.log(kleur.green('  ✔ ') + msg) }
 function error(msg: string)   { console.log(kleur.red('  ✘ ') + msg) }
@@ -137,4 +138,17 @@ export function makeSeeder(name: string) {
   const seedersDir = path.resolve(process.cwd(), 'database/seeders')
   writeFile(path.join(seedersDir, `${name}Seeder.ts`), stub(name))
   registerSeeder(seedersDir, name)
+
+  // instala bcrypt automaticamente se necessário
+  const fields = extractFieldsFromMigration(name)
+  if (fields && 'password' in fields) {
+    const hasModule = fs.existsSync(path.resolve(process.cwd(), 'node_modules/bcrypt'))
+    if (!hasModule) {
+      console.log(kleur.cyan('  → ') + 'Instalando bcrypt...')
+      execSync('npm install bcrypt && npm install -D @types/bcrypt', {
+        stdio: 'inherit',
+        cwd: process.cwd()
+      })
+    }
+  }
 }
