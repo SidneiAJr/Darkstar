@@ -23,4 +23,10 @@ export interface BaseDriver {
 
   // Retorna o tipo do banco
   type(): 'sqlite' | 'mysql' | 'mariadb' | 'postgres'
+
+  // Retorna uma conexão do pool (opcional — MySQL/MariaDB)
+  getConnection?(): Promise<any>
+
+  // Libera uma conexão de volta pro pool (opcional — MySQL/MariaDB)
+  releaseConnection?(conn: any): Promise<void>
 }

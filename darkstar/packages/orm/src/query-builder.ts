@@ -1,4 +1,5 @@
 import { BaseDriver } from './drivers/base-driver'
+import type { Model } from './model'
 
 type WhereOperator = '=' | '!=' | '>' | '>=' | '<' | '<=' | 'LIKE' | 'IN' | 'NOT IN'
 type OrderDirection = 'asc' | 'desc'
@@ -23,15 +24,37 @@ export class QueryBuilder<T = any> {
   private _offsetValue?: number
   private _selectColumns: string[] = ['*']
 
-  constructor(driver: BaseDriver, table: string) {
+  // Eager loading
+  private _with: string[] = []
+  private _model: typeof Model | null = null
+
+  constructor(driver: BaseDriver, table: string, model?: typeof Model) {
     this._driver = driver
     this._table  = table
+    this._model  = model ?? null
   }
+
+  // -----------------------------------------------
+  // Eager loading
+  // -----------------------------------------------
+
+  with(...relations: string[]): this {
+    this._with.push(...relations)
+    return this
+  }
+
+  // -----------------------------------------------
+  // SELECT
+  // -----------------------------------------------
 
   select(...columns: string[]): this {
     this._selectColumns = columns
     return this
   }
+
+  // -----------------------------------------------
+  // WHERE
+  // -----------------------------------------------
 
   where(column: string, value: any): this
   where(column: string, operator: WhereOperator, value: any): this
@@ -59,6 +82,10 @@ export class QueryBuilder<T = any> {
     return this
   }
 
+  // -----------------------------------------------
+  // ORDER / LIMIT / OFFSET
+  // -----------------------------------------------
+
   orderBy(column: string, direction: OrderDirection = 'asc'): this {
     this._orders.push({ column, direction })
     return this
@@ -74,6 +101,10 @@ export class QueryBuilder<T = any> {
     return this
   }
 
+  // -----------------------------------------------
+  // BUILD SQL
+  // -----------------------------------------------
+
   private build(): { sql: string; bindings: any[] } {
     const bindings: any[] = []
     const cols = this._selectColumns.join(', ')
@@ -82,8 +113,13 @@ export class QueryBuilder<T = any> {
     if (this._wheres.length > 0) {
       const clauses = this._wheres.map(w => {
         if (w.operator === 'IN' || w.operator === 'NOT IN') {
-          const placeholders = w.value.map(() => '?').join(', ')
-          bindings.push(...w.value)
+          const arr = Array.isArray(w.value) ? w.value : []
+          if (arr.length === 0) {
+            // IN vazio → sempre falso; NOT IN vazio → sempre verdadeiro
+            return w.operator === 'IN' ? '1 = 0' : '1 = 1'
+          }
+          const placeholders = arr.map(() => '?').join(', ')
+          bindings.push(...arr)
           return `${w.column} ${w.operator} (${placeholders})`
         }
         bindings.push(w.value)
@@ -103,10 +139,20 @@ export class QueryBuilder<T = any> {
     return { sql, bindings }
   }
 
+  // -----------------------------------------------
+  // FETCH
+  // -----------------------------------------------
+
   async get(): Promise<T[]> {
     const { sql, bindings } = this.build()
     const result = await this._driver.query<T>(sql, bindings)
-    return result.rows
+    const rows = result.rows
+
+    if (this._with.length > 0 && this._model) {
+      await (this._model as any).loadRelations(rows, this._with)
+    }
+
+    return rows
   }
 
   async first(): Promise<T | null> {
@@ -119,13 +165,29 @@ export class QueryBuilder<T = any> {
     const result = await this._driver.query<T>(
       `SELECT * FROM ${this._table} WHERE id = ? LIMIT 1`, [id]
     )
-    return result.rows[0] ?? null
+    const rows = result.rows
+
+    if (this._with.length > 0 && this._model && rows.length > 0) {
+      await (this._model as any).loadRelations(rows as any[], this._with)
+    }
+
+    return rows[0] ?? null
   }
 
   async all(): Promise<T[]> {
     const result = await this._driver.query<T>(`SELECT * FROM ${this._table}`)
-    return result.rows
+    const rows = result.rows
+
+    if (this._with.length > 0 && this._model) {
+      await (this._model as any).loadRelations(rows, this._with)
+    }
+
+    return rows
   }
+
+  // -----------------------------------------------
+  // AGGREGATES
+  // -----------------------------------------------
 
   async count(): Promise<number> {
     const { sql, bindings } = this.build()
@@ -137,6 +199,10 @@ export class QueryBuilder<T = any> {
   async exists(): Promise<boolean> {
     return (await this.count()) > 0
   }
+
+  // -----------------------------------------------
+  // WRITE
+  // -----------------------------------------------
 
   async create(data: Partial<T>): Promise<T> {
     const keys   = Object.keys(data)
@@ -169,6 +235,10 @@ export class QueryBuilder<T = any> {
     const result = await this._driver.query(sql, bindings)
     return result.affectedRows
   }
+
+  // -----------------------------------------------
+  // PAGINATE / DEBUG
+  // -----------------------------------------------
 
   async paginate(page: number = 1, perPage: number = 15) {
     const total = await this.count()

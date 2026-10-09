@@ -54,7 +54,7 @@ export class SQLiteDriver implements BaseDriver {
   }
 
   private get(): Database.Database {
-    if (!this.db) throw new Error('[Tanis ORM] SQLite não conectado.')
+    if (!this.db) throw new Error('[DarkStar ORM] SQLite não conectado.')
     return this.db
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@darkstar-cli/cli",
-  "version": "0.0.28",
+  "version": "0.0.29",
   "description": "CLI do framework DarkStar — backend Node.js inspirado no Laravel",
   "license": "MIT",
   "author": "Albertaodasmassa",

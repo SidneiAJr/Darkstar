@@ -1,6 +1,6 @@
 {
   "name": "@darkstar-cli/orm",
-  "version": "0.0.1",
+  "version": "0.0.9",
   "description": "ORM do framework DarkStar — QueryBuilder estilo Eloquent para Node.js",
   "license": "MIT",
   "author": "Albertaodasmassa",
@@ -9,12 +9,25 @@
     "type": "git",
     "url": "https://github.com/SidneiAJr/Darkstar"
   },
-  "engines": { "node": ">=18.0.0" },
-  "keywords": ["darkstar", "orm", "querybuilder", "nodejs", "mysql", "postgres"],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "darkstar",
+    "orm",
+    "querybuilder",
+    "nodejs",
+    "mysql",
+    "postgres"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
-  "scripts": { "build": "tsc --build" },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --build"
+  },
   "dependencies": {
     "better-sqlite3": "^13.0.3",
     "dotenv": "^18.0.5",

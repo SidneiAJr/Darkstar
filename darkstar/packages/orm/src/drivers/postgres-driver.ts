@@ -51,7 +51,7 @@ export class PostgresDriver implements BaseDriver {
   }
 
   async query<T = any>(sql: string, bindings: any[] = []): Promise<QueryResult<T>> {
-    if (!this.pool) throw new Error('[Tanis ORM] PostgreSQL não conectado.')
+    if (!this.pool) throw new Error('[DarkStar ORM] PostgreSQL não conectado.')
 
     const result = await this.pool.query(sql, bindings)
 

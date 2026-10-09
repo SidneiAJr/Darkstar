@@ -1,6 +1,6 @@
 {
   "name": "darkstar",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "private": true,
   "workspaces": [
     "packages/cli",
@@ -17,5 +17,8 @@
   "devDependencies": {
     "@types/node": "^26.6.4",
     "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "@darkstar-cli/orm": "^0.0.3"
   }
 }

@@ -3,13 +3,13 @@
 > DarkStar is in **early alpha**. APIs will change without notice. The package is not stable — use at your own risk.
 
 > [!WARNING]
-> ## 🧪 CUSTOM ORM — NO RELATIONSHIP SUPPORT
-> DarkStar uses a **custom ORM** inspired by Eloquent, built from scratch for Node.js. It is **not Prisma, TypeORM or Sequelize**. Relationships (`hasOne`, `hasMany`, `belongsTo`), eager loading and transactions are **not yet implemented**. Check the Known Limitations section before using.
+> ## 🧪 CUSTOM ORM — BUILT FROM SCRATCH
+> DarkStar uses a **custom ORM** inspired by Eloquent, built from scratch for Node.js. It is **not Prisma, TypeORM or Sequelize**. Relationships (`hasOne`, `hasMany`, `belongsTo`, `belongsToMany`) and eager loading (`with()`) **are implemented**. Transactions are **not yet available**.
 
 > [!NOTE]
 > 📦 DarkStar is published on npm as **`@darkstar-cli/cli`**. Install with `npm install -g @darkstar-cli/cli`.
 
-# 🪐 DarkStar — Backend Framework for Node.js
+# 🪐 DarkStar — CLI
 
 > *"Forged in the void. Built to last."*
 
@@ -17,71 +17,23 @@
 
 ---
 
-## Why does DarkStar exist?
+## What is this package?
 
-I'm a PHP fan. The first time I saw Laravel I couldn't wrap my head around it — but once I did, I thought: *"this is brilliant"*.
+`@darkstar-cli/cli` is the **command-line tool** for the DarkStar framework. It:
 
-NestJS tries to bring that experience to Node, but in practice it's verbose, decorator-heavy and hard to read. Plain Express is too flexible — you end up building the same boilerplate from scratch on every project.
+- Creates projects (`darkstar new`)
+- Generates code (`darkstar forge make:*`)
+- Manages the database (`darkstar forge db:*`)
+- Runs the dev server (`darkstar serve`)
 
-**DarkStar** was born to solve this: a Node.js framework with the clarity and productivity of Laravel, without the ecosystem mess.
+The **ORM** and **core** are separate packages:
 
----
-
-## Philosophy
-
-- **Convention over configuration** — ready-made structure, no unnecessary decisions
-- **MVC as a first-class citizen** — Controller → Service → Repository is the standard, not an opinion
-- **CLI that does the heavy lifting** — one command generates the entire layer
-- **Centralized dependencies** — you update DarkStar, not 40 separate packages
-- **Expressive custom ORM** — fluent Eloquent-style query builder, built from scratch for Node.js, no decorators
+- `@darkstar-cli/orm` — [documentation](https://github.com/SidneiAJr/Darkstar)
+- `@darkstar-cli/core` — Express-based HTTP layer
 
 ---
 
-## Installation
-
-```bash
-npm install -g @darkstar-cli/cli
-```
-
----
-
-## Creating a project
-
-```bash
-darkstar new my-project
-```
-
-The CLI will ask:
-- Which database? (MySQL · PostgreSQL)
-
-Generated structure:
-
-```
-my-project/
-├── src/
-│   ├── controllers/
-│   ├── services/
-│   ├── repositories/
-│   ├── models/
-│   ├── routes/
-│   ├── schemas/
-│   ├── middlewares/
-│   ├── utils/
-│   └── core/
-│       └── app.ts
-├── database/
-│   ├── migrations/
-│   └── seeders/
-│       ├── Seeder.ts
-│       └── DatabaseSeeder.ts
-├── .env
-├── darkstar.config.ts
-└── package.json
-```
-
----
-
-## CLI — DarkStar Forge
+## Commands
 
 | Command | Description |
 |---|---|
@@ -93,291 +45,36 @@ my-project/
 | `darkstar forge make:repository <Name>` | Generates a Repository |
 | `darkstar forge make:model <Name>` | Generates a Model |
 | `darkstar forge make:migration <Name>` | Generates a Migration |
-| `darkstar forge make:seeder <Name>` | Generates a Seeder (automatically reads fields from the migration) |
+| `darkstar forge make:seeder <Name>` | Generates a Seeder (reads fields from the migration) |
 | `darkstar forge make:schema <Name>` | Generates a Schema |
 | `darkstar forge make:middleware <Name>` | Generates a Middleware |
-| `darkstar forge make:util <Name>` | Generates omitPassword and twoFactor utils |
-| `darkstar forge make:security` | Generates RateLimitMiddleware with ready-made limiters |
+| `darkstar forge make:util <Name>` | Generates `omitPassword` and `twoFactor` utils |
+| `darkstar forge make:security` | Generates `RateLimitMiddleware` with 22 ready-made limiters |
+| `darkstar forge make:deps [names...]` | Installs optional dependencies (bcrypt, jwt, zod, etc) |
 | `darkstar forge db:create` | Creates the database |
 | `darkstar forge db:migrate` | Runs pending migrations |
 | `darkstar forge db:rollback` | Rolls back the last migration |
 | `darkstar forge db:seed` | Seeds the database |
 
----
-
-## Recommended workflow from scratch
-
-```bash
-# 1. Create the database
-darkstar forge db:create
-
-# 2. Generate the migration
-darkstar forge make:migration CreateUsersTable
-
-# 3. Edit the generated file in database/migrations/ with the desired fields
-
-# 4. Run the migration
-darkstar forge db:migrate
-
-# 5. Generate the full API
-darkstar forge make:api User
-
-# 6. Generate the seeder (automatically reads fields from the migration)
-darkstar forge make:seeder User
-
-# 7. Seed the database
-darkstar forge db:seed
-
-# 8. Generate utils
-darkstar forge make:util User
-
-# 9. Generate security rate limiters
-darkstar forge make:security
-
-# 10. Start the server
-darkstar serve
-```
+Full usage docs: see the [main repository](https://github.com/SidneiAJr/Darkstar).
 
 ---
 
-## Structure generated by `make:api`
-
-A single `darkstar forge make:api User` command generates the entire MVC chain:
-
-**`UserController.ts`**
-
-```typescript
-import { DarkstarRequest, DarkstarResponse } from '@darkstar-cli/core'
-import { UserService } from '../services/UserService'
-
-export class UserController {
-  constructor(private userService: UserService) {}
-
-  async index(req: DarkstarRequest, res: DarkstarResponse) {
-    const data = await this.userService.findAll()
-    return res.ok(data)
-  }
-
-  async show(req: DarkstarRequest, res: DarkstarResponse) {
-    const data = await this.userService.findById(req.param('id')!)
-    if (!data) return res.notFound('User not found')
-    return res.ok(data)
-  }
-
-  async store(req: DarkstarRequest, res: DarkstarResponse) {
-    const data = await this.userService.create(req.all())
-    return res.created(data)
-  }
-
-  async update(req: DarkstarRequest, res: DarkstarResponse) {
-    const data = await this.userService.update(req.param('id')!, req.all())
-    return res.ok(data)
-  }
-
-  async destroy(req: DarkstarRequest, res: DarkstarResponse) {
-    await this.userService.delete(req.param('id')!)
-    return res.noContent()
-  }
-}
-```
-
-**`UserService.ts`**
-
-```typescript
-import { UserRepository } from '../repositories/UserRepository'
-
-export class UserService {
-  constructor(private userRepository: UserRepository) {}
-
-  findAll()                                     { return this.userRepository.findAll() }
-  findById(id: string)                          { return this.userRepository.findById(id) }
-  create(data: Record<string, any>)             { return this.userRepository.create(data) }
-  update(id: string, data: Record<string, any>) { return this.userRepository.update(id, data) }
-  delete(id: string)                            { return this.userRepository.delete(id) }
-}
-```
-
-**`UserRepository.ts`**
-
-```typescript
-import { User } from '../models/User'
-
-export class UserRepository {
-  findAll()                                     { return User.all() }
-  findById(id: string)                          { return User.find(id) }
-  create(data: Record<string, any>)             { return User.create(data) }
-  update(id: string, data: Record<string, any>) { return User.where('id', id).update(data) }
-  delete(id: string)                            { return User.where('id', id).delete() }
-}
-```
-
-**`User.ts`**
-
-```typescript
-import { Model } from '@darkstar-cli/orm'
-
-export class User extends Model {
-  static table = 'users'
-}
-```
-
-**`UserSchema.ts`**
-
-```typescript
-export const UserSchema = {}
-```
-
-**`UserMiddleware.ts`**
-
-```typescript
-import { DarkstarRequest, DarkstarResponse, NextFunction } from '@darkstar-cli/core'
-
-export class UserMiddleware {
-  handle(req: DarkstarRequest, res: DarkstarResponse, next: NextFunction) {
-    next()
-  }
-}
-```
-
----
-
-## Utils — `make:util`
-
-The `darkstar forge make:util User` command generates ready-made utilities in `src/utils/user/`:
-
-**`omitPassword.ts`**
-
-Strips the `password` field from any object before returning it to the client — useful in service and controller responses.
-
-```typescript
-export function omitUserPassword<T extends Record<string, any>>(obj: T): Omit<T, 'password'> {
-  const { password, ...rest } = obj
-  return rest
-}
-```
-
-**`twoFactor.ts`**
-
-Generates and validates a 6-digit numeric code. See Known Limitations for production caveats.
-
-```typescript
-import * as crypto from 'crypto'
-
-export function generateUserTwoFactorCode(): string {
-  const code = crypto.randomInt(100000, 999999)
-  return code.toString()
-}
-
-export function validateUserTwoFactorCode(inputCode: string, expectedCode: string): boolean {
-  return inputCode.trim() === expectedCode.trim()
-}
-```
-
----
-
-## Security — `make:security`
-
-The `darkstar forge make:security` command generates `src/middlewares/RateLimitMiddleware.ts` with 22 ready-made limiters covering:
-
-- **Auth** — login, register, forgot/reset password, refresh token, verify email, two-factor
-- **CRUD** — read, write, delete
-- **Files** — upload, download
-- **Real-time** — SSE, WebSocket
-- **Communication** — email, SMS, webhook
-- **Search & reports** — search, stats, report
-- **Admin** — general and destructive actions
-- **Payments** — checkout, refund
-
-Usage in routes:
-
-```typescript
-import { loginLimiter, registerLimiter, globalLimiter } from '../middlewares/RateLimitMiddleware'
-
-router.post('/auth/login',    loginLimiter,    ...)
-router.post('/auth/register', registerLimiter, ...)
-router.use('/api',            globalLimiter)
-```
-
----
-
-## Routes
-
-All routes are prefixed with `/api` by default. Example with `make:api User`:
-
-```
-GET    /api/users
-GET    /api/users/:id
-POST   /api/users
-PUT    /api/users/:id
-DELETE /api/users/:id
-```
-
-The prefix can be changed when booting the application:
-
-```typescript
-await app.boot('/')    // no prefix
-await app.boot('/v1')  // versioned
-```
-
----
-
-## Custom ORM — Eloquent-style Query Builder
-
-> [!WARNING]
-> DarkStar's ORM is an independent package (`@darkstar-cli/orm`), built from scratch. Do not confuse it with Prisma, TypeORM or Sequelize. Check the Known Limitations section before using in production.
-
-```typescript
-// fetch all
-const users = await User.all()
-
-// fetch by id
-const user = await User.find(1)
-
-// chained filters
-const admins = await User
-  .where('role', 'admin')
-  .where('active', true)
-  .orderBy('name')
-  .get()
-
-// create
-const user = await User.create({ name: 'Test', email: 'test@email.com' })
-
-// update
-await User.where('id', 1).update({ name: 'Test' })
-
-// delete
-await User.where('id', 1).delete()
-```
-
----
-
-## Known Limitations
+## ⚠️ Known limitations
 
 DarkStar is in **early alpha**. The limitations below are known and will be addressed in future releases.
 
-### ORM
+### CLI
 
-- **No relationship support** — `hasOne`, `hasMany`, `belongsTo`, `belongsToMany` are not implemented. Queries with JOINs must be written in raw SQL for now.
-- **Schema builder is MySQL/MariaDB only** — `Schema.create()`, `hasTable()`, `addColumn()` and `dropColumn()` generate MySQL syntax. PostgreSQL and SQLite migrations must use raw SQL inside the `up()` function.
-- **No eager loading** — there is no equivalent to Laravel's `with()`. Related models must be fetched in separate queries.
-- **`update()` returns the number of affected rows, not the updated record** — `Model.update(id, data)` returns `number`, not the updated instance. Re-fetch the record after updating if you need the new values.
-- **No transaction API** — there is no `DB.transaction(callback)` helper. Transactions must be managed manually through the raw driver.
-- **SQLite has no advisory locks** — `db:migrate` uses `GET_LOCK` (MySQL) and `pg_advisory_lock` (PostgreSQL) to prevent concurrent migrations. SQLite has no equivalent, so running migrations in parallel on SQLite is unsafe.
-- **`hasTable()` uses `SHOW TABLES`, which is MySQL only** — will fail on PostgreSQL and SQLite.
+- **`darkstar new` uses `latest` for `@darkstar-cli/*`** — the generated `package.json` references `@darkstar-cli/core` and `@darkstar-cli/orm` as `latest`. New projects always pull the newest version, which may include breaking changes while DarkStar is in alpha.
+- **`darkstar serve` runs `npm run dev`** — assumes the project has a `dev` script in `package.json`. If you rename it, `darkstar serve` will fail.
+- **Automatic seeder registration depends on the comment `// registre seus seeders aqui`** — if this comment is removed or modified in `DatabaseSeeder.ts`, `make:seeder` will not register the new seeder automatically.
+- **`db:seed` runs `tsx` from the project's `node_modules/.bin/`** — if `tsx` is not installed locally (via `npm install -D tsx`), the seeder will fail. `darkstar new` already installs it.
 
 ### IoC Container
 
 - **Dependency resolution is based on constructor parameter names** — the container parses the constructor source code as a string to infer dependencies. This breaks when code is minified, bundled or compiled in a way that renames parameters. Do not use with bundlers that mangle variable names (e.g. esbuild with `minifyIdentifiers: true`).
 - **No circular dependency detection** — circular dependencies will cause a stack overflow with no useful error message.
-
-### CLI
-
-- **`darkstar new` uses local `file:` paths** — the generated `package.json` references `@darkstar-cli/core` and `@darkstar-cli/orm` as `file:` paths pointing to the monorepo. This will be updated to npm versions on release.
-- **`make:model` generates a stub with `createModel` that does not exist in `@darkstar-cli/orm`** — the standalone `make:model` command generates `import { createModel, Model }`, which is not exported by the ORM. Use `make:api` instead or copy the model stub from it.
-- **`make:middleware` generates imports with `TanisRequest`/`TanisResponse`** — the standalone `make:middleware` command still uses the old `Tanis*` aliases. They work at runtime but are inconsistent with the `Darkstar*` naming used everywhere else.
-- **`darkstar serve` runs `npm run dev`** — assumes the project has a `dev` script in `package.json`. If you rename it, `darkstar serve` will fail.
-- **Automatic seeder registration depends on the comment `// register your seeders here`** — if this comment is removed or modified in `DatabaseSeeder.ts`, `make:seeder` will not register the new seeder automatically.
 
 ### Validation
 
@@ -386,16 +83,6 @@ DarkStar is in **early alpha**. The limitations below are known and will be addr
 ### Two-Factor Authentication
 
 - **`twoFactor.ts` is not RFC 6238 compliant** — the generated util uses `crypto.randomInt` to produce a one-time code, but has no time window, HMAC or shared secret. It is suitable only as a placeholder. For production 2FA, use [`otplib`](https://github.com/yeojz/otplib).
-
----
-
-## Inspirations
-
-- **Laravel** — for the elegance and productivity
-- **Pandorum** — for the idea of forging something new in the void of space
-- **Constellation CLI** — same spirit of automating what is repetitive
-
----
 
 ---
 
@@ -419,11 +106,21 @@ DarkStar **does not do this automatically** because every project has different 
 
 The `make:api` command generates a working MVC skeleton, but it is **intentionally minimal**. Watch out for these common issues:
 
-- **`password` is returned in API responses** — the generated controller does not strip sensitive fields. Use the `omit*Password` util (from `make:util`) or write your own transformer.
+- **`password` is returned in API responses** — the generated controller strips it via `static hidden` (Laravel-style), but **related** models are not stripped automatically. Handle it in the controller for nested relations.
 - **`POST` stores the password as plain text** — the generated `store()` method does no hashing. Add `bcrypt.hash()` in the controller or service layer.
 - **`update()` returns the number of affected rows, not the updated record** — re-fetch the record if you need the new values.
 - **`UserSchema` is an empty object** — no validation is applied. Integrate Zod or Joi manually.
 
 These are **not framework bugs** — they are conscious design decisions. DarkStar ships with the structure, not the policy.
+
+---
+
+## Inspirations
+
+- **Laravel** — for the elegance and productivity
+- **Pandorum** — for the idea of forging something new in the void of space
+- **Constellation CLI** — same spirit of automating what is repetitive
+
+---
 
 > 🪐 DarkStar — Open Source

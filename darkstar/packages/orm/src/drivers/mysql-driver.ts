@@ -1,10 +1,6 @@
 import { BaseDriver, QueryResult } from './base-driver'
 import mysql, { Pool, PoolConnection } from 'mysql2/promise'
 
-// -----------------------------------------------
-// MySQLDriver — funciona com MySQL e MariaDB
-// -----------------------------------------------
-
 export interface MySQLConfig {
   host: string
   port: number
@@ -74,8 +70,8 @@ export class MySQLDriver implements BaseDriver {
     }
   }
 
-  private async getConnection(): Promise<PoolConnection> {
-    if (!this.pool) throw new Error('[Tanis ORM] MySQL não conectado.')
+  public async getConnection(): Promise<PoolConnection> {
+    if (!this.pool) throw new Error('[DarkStar ORM] MySQL não conectado.')
     return this.pool.getConnection()
   }
 }
