@@ -316,7 +316,7 @@ DB_CONNECTION=mysql    # mysql | mariadb | postgres | sqlite
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_USER=root           # also accepts DB_USERNAME
-DB_PASSWORD=secret
+DB_PASSWORD=
 DB_DATABASE=myapp
 ```
 

@@ -1,6 +1,6 @@
 {
   "name": "@darkstar-cli/orm",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "ORM do framework DarkStar — QueryBuilder estilo Eloquent para Node.js",
   "license": "MIT",
   "author": "Albertaodasmassa",
