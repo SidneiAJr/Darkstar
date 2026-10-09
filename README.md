@@ -7,7 +7,7 @@
 > O DarkStar usa um **ORM próprio** inspirado no Eloquent, construído do zero para Node.js. Ele **não é o Prisma, TypeORM ou Sequelize**. Relacionamentos (`hasOne`, `hasMany`, `belongsTo`), eager loading e transações ainda **não estão implementados**. Consulte a seção de Limitações Conhecidas antes de usar.
 
 > [!NOTE]
-> 📦 O DarkStar foi publicado no npm como **`darkstar-cli`**. Instale com `npm install -g darkstar-cli`.
+> 📦 O DarkStar foi publicado no npm como **`@darkstar-cli/cli`**. Instale com `npm install -g @darkstar-cli/cli`.
 
 # 🪐 DarkStar — Backend Framework for Node.js
 
@@ -40,7 +40,7 @@ O **DarkStar** nasceu pra resolver isso: um framework Node.js com a clareza e pr
 ## Instalação
 
 ```bash
-npm install -g darkstar-cli
+npm install -g @darkstar-cli/cli
 ```
 
 ---
@@ -147,7 +147,7 @@ Um único comando `darkstar forge make:api User` gera toda a cadeia MVC:
 **`UserController.ts`**
 
 ```typescript
-import { DarkstarRequest, DarkstarResponse } from 'darkstar-core'
+import { DarkstarRequest, DarkstarResponse } from '@darkstar-cli/core'
 import { UserService } from '../services/UserService'
 
 export class UserController {
@@ -214,7 +214,7 @@ export class UserRepository {
 **`User.ts`**
 
 ```typescript
-import { Model } from 'darkstar-orm'
+import { Model } from '@darkstar-cli/orm'
 
 export class User extends Model {
   static table = 'users'
@@ -230,7 +230,7 @@ export const UserSchema = {}
 **`UserMiddleware.ts`**
 
 ```typescript
-import { DarkstarRequest, DarkstarResponse, NextFunction } from 'darkstar-core'
+import { DarkstarRequest, DarkstarResponse, NextFunction } from '@darkstar-cli/core'
 
 export class UserMiddleware {
   handle(req: DarkstarRequest, res: DarkstarResponse, next: NextFunction) {
@@ -320,7 +320,7 @@ await app.boot('/v1')  // versionado
 ## ORM Próprio — Query Builder estilo Eloquent
 
 > [!WARNING]
-> O ORM do DarkStar é um projeto independente (`darkstar-orm`), construído do zero. Não confunda com Prisma, TypeORM ou Sequelize. Veja as limitações conhecidas antes de usar em produção.
+> O ORM do DarkStar é um projeto independente (`@darkstar-cli/orm`), construído do zero. Não confunda com Prisma, TypeORM ou Sequelize. Veja as limitações conhecidas antes de usar em produção.
 
 ```typescript
 // buscar todos
@@ -364,13 +364,13 @@ O DarkStar está em **alpha inicial**. As limitações abaixo são conhecidas e 
 
 ### Container IoC
 
-- **Resolução de dependências é baseada no nome dos parâmetros do construtor** — o container teste2lisa o código-fonte do construtor como string para inferir dependências. Isso quebra quando o código é minificado, bundled ou compilado de forma que renomeia parâmetros. Não use com bundlers que fazem mangling de variáveis (ex: esbuild com `minifyIdentifiers: true`).
+- **Resolução de dependências é baseada no nome dos parâmetros do construtor** — o container analisa o código-fonte do construtor como string para inferir dependências. Isso quebra quando o código é minificado, bundled ou compilado de forma que renomeia parâmetros. Não use com bundlers que fazem mangling de variáveis (ex: esbuild com `minifyIdentifiers: true`).
 - **Sem detecção de dependências circulares** — dependências circulares causarão stack overflow sem mensagem de erro útil.
 
 ### CLI
 
-- **`darkstar new` usa caminhos `file:` locais** — o `package.json` gerado referencia `darkstar-core` e `darkstar-orm` como caminhos `file:` apontando para o monorepo. Isso será atualizado para versões npm na publicação.
-- **`make:model` gera um stub com `createModel` que não existe no `darkstar-orm`** — o comando `make:model` isolado gera `import { createModel, Model }`, que não é exportado pelo ORM. Use `make:api` ou copie o stub de model a partir dele.
+- **`darkstar new` usa caminhos `file:` locais** — o `package.json` gerado referencia `@darkstar-cli/core` e `@darkstar-cli/orm` como caminhos `file:` apontando para o monorepo. Isso será atualizado para versões npm na publicação.
+- **`make:model` gera um stub com `createModel` que não existe no `@darkstar-cli/orm`** — o comando `make:model` isolado gera `import { createModel, Model }`, que não é exportado pelo ORM. Use `make:api` ou copie o stub de model a partir dele.
 - **`make:middleware` gera imports com `TanisRequest`/`TanisResponse`** — o comando `make:middleware` isolado ainda usa os aliases antigos `Tanis*`. Funcionam em runtime, mas são inconsistentes com a nomenclatura `Darkstar*` usada em todo o resto.
 - **`darkstar serve` executa `npm run dev`** — assume que o projeto tem um script `dev` no `package.json`. Se você renomear, `darkstar serve` vai falhar.
 - **O registro automático de seeders depende do comentário `// registre seus seeders aqui`** — se esse comentário for removido ou modificado no `DatabaseSeeder.ts`, o `make:seeder` não vai registrar o novo seeder automaticamente.
