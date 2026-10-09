@@ -8,30 +8,51 @@ function info(msg: string)    { console.log(kleur.cyan('  → ') + msg) }
 function error(msg: string)   { console.log(kleur.red('  ✘ ') + msg) }
 function warn(msg: string)    { console.log(kleur.yellow('  ⚠ ') + msg) }
 
-async function acquireLock(driver: any, db: string): Promise<boolean> {
+async function acquireLock(driver: any, db: string): Promise<{ locked: boolean, conn?: any }> {
   try {
     if (db === 'postgres') {
-      await driver.query(`SELECT pg_advisory_lock(123456789)`)
-    } else {
       const { rows } = await driver.query(
-        `SELECT GET_LOCK('darkstar_migrate', 0) as result`
-      ) as { rows: { result: number }[] }
-      if (rows[0]?.result !== 1) return false
+        `SELECT pg_try_advisory_lock(123456789) as result`
+      ) as { rows: { result: boolean }[] }
+      return { locked: rows[0]?.result === true }
+    } else {
+      const dbName = process.env.DB_DATABASE
+      if (!dbName) {
+        error('DB_DATABASE não está definido no .env — não é possível adquirir o lock.')
+        return { locked: false }
+      }
+
+      const conn = await driver.getConnection()
+      const [rows] = await conn.query(
+        `SELECT GET_LOCK(?, 0) as result`,
+        [`darkstar_migrate_${dbName}`]
+      )
+      if ((rows as any)[0]?.result !== 1) {
+        conn.release()
+        return { locked: false }
+      }
+      return { locked: true, conn }
     }
-    return true
-  } catch {
-    return false
+  } catch (err: any) {
+    error(`Falha ao adquirir lock: ${err.message}`)
+    return { locked: false }
   }
 }
 
-async function releaseLock(driver: any, db: string) {
+async function releaseLock(driver: any, db: string, conn?: any) {
   try {
     if (db === 'postgres') {
       await driver.query(`SELECT pg_advisory_unlock(123456789)`)
-    } else {
-      await driver.query(`SELECT RELEASE_LOCK('darkstar_migrate')`)
+    } else if (conn) {
+      const dbName = process.env.DB_DATABASE
+      if (dbName) {
+        await conn.query(`SELECT RELEASE_LOCK(?)`, [`darkstar_migrate_${dbName}`])
+      }
+      conn.release()
     }
-  } catch {}
+  } catch (err: any) {
+    warn(`Falha ao liberar lock: ${err.message}`)
+  }
 }
 
 export async function dbMigrate() {
@@ -47,12 +68,21 @@ export async function dbMigrate() {
   const driver = Connection.get()
   const db = driver.type()
 
-  const locked = await acquireLock(driver, db)
+  const { locked, conn } = await acquireLock(driver, db)
   if (!locked) {
     error('Outra instância já está rodando migrations. Tente novamente.')
     await Connection.disconnect()
     process.exit(1)
   }
+
+  const cleanup = async (signal: string) => {
+    warn(`Recebido ${signal}, liberando lock e saindo...`)
+    await releaseLock(driver, db, conn)
+    await Connection.disconnect()
+    process.exit(0)
+  }
+  process.on('SIGINT',  () => { cleanup('SIGINT') })
+  process.on('SIGTERM', () => { cleanup('SIGTERM') })
 
   try {
     const createTableSQL = db === 'postgres'
@@ -104,8 +134,7 @@ export async function dbMigrate() {
       try {
         migration = await import(filePath)
       } catch (err: any) {
-        error(`Falha ao carregar ${file}: ${err.message}`)
-        process.exit(1)
+        throw new Error(`Falha ao carregar ${file}: ${err.message}`)
       }
 
       if (typeof migration.up !== 'function') {
@@ -118,29 +147,28 @@ export async function dbMigrate() {
       try {
         const begin = db === 'postgres' ? 'BEGIN' : 'START TRANSACTION'
         await driver.query(begin)
-
         await migration.up(driver)
-
         const sql = db === 'postgres'
           ? `INSERT INTO darkstar_migrations (name) VALUES ($1)`
           : `INSERT INTO darkstar_migrations (name) VALUES (?)`
-
         await driver.query(sql, [file])
         await driver.query('COMMIT')
         success(file)
       } catch (err: any) {
         try { await driver.query('ROLLBACK') } catch {}
-        error(`Falha em ${file}: ${err.message}`)
-        warn('Migration interrompida. Corrija o erro e rode db:migrate novamente.')
-        process.exit(1)
+        throw new Error(`Falha em ${file}: ${err.message}`)
       }
     }
 
     console.log('')
     success(`${pending.length} migration(s) executada(s).`)
 
+  } catch (err: any) {
+    error(err.message)
+    warn('Migration interrompida. Corrija o erro e rode db:migrate novamente.')
+    process.exitCode = 1
   } finally {
-    await releaseLock(driver, db)
+    await releaseLock(driver, db, conn)
     await Connection.disconnect()
   }
 }

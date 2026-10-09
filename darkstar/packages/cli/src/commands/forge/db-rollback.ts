@@ -1,4 +1,5 @@
 import kleur from 'kleur'
+import * as fs from 'fs'
 import * as path from 'path'
 import { Connection } from '@darkstar-cli/orm'
 
@@ -12,9 +13,23 @@ export async function dbRollback() {
 
   try {
     await Connection.connect()
-    const driver = Connection.get()
-    const db = driver.type()
+  } catch (err: any) {
+    error(`Não foi possível conectar ao banco: ${err.message}`)
+    process.exit(1)
+  }
 
+  const driver = Connection.get()
+  const db = driver.type()
+
+  const cleanup = async (signal: string) => {
+    warn(`Recebido ${signal}, saindo...`)
+    await Connection.disconnect()
+    process.exit(0)
+  }
+  process.on('SIGINT',  () => { cleanup('SIGINT') })
+  process.on('SIGTERM', () => { cleanup('SIGTERM') })
+
+  try {
     // 1. Pega a última migration executada
     const { rows } = await driver.query<{ name: string }>(
       `SELECT name FROM darkstar_migrations ORDER BY id DESC LIMIT 1`
@@ -22,7 +37,6 @@ export async function dbRollback() {
 
     if (rows.length === 0) {
       warn('Nenhuma migration para desfazer.')
-      await Connection.disconnect()
       return
     }
 
@@ -31,11 +45,15 @@ export async function dbRollback() {
     // 2. Carrega o arquivo e chama down()
     const migrationsDir = path.resolve(process.cwd(), 'database/migrations')
     const filePath = path.join(migrationsDir, last)
+
+    if (!fs.existsSync(filePath)) {
+      throw new Error(`Arquivo da migration não encontrado: ${last}`)
+    }
+
     const migration = await import(filePath)
 
     if (typeof migration.down !== 'function') {
       warn(`${last} não exporta uma função down() — pulando.`)
-      await Connection.disconnect()
       return
     }
 
@@ -49,12 +67,13 @@ export async function dbRollback() {
 
     await driver.query(sql, [last])
 
-    await Connection.disconnect()
     console.log('')
     success(`${last} desfeita com sucesso.`)
 
   } catch (err: any) {
-    error(`Falha: ${err.message}`)
-    process.exit(1)
+    error(err.message)
+    process.exitCode = 1
+  } finally {
+    await Connection.disconnect()
   }
 }

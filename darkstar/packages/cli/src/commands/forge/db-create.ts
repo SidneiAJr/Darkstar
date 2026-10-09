@@ -5,7 +5,7 @@ function info(msg: string)    { console.log(kleur.cyan('  → ') + msg) }
 function error(msg: string)   { console.log(kleur.red('  ✘ ') + msg) }
 
 export async function dbCreate() {
-  const db       = process.env.DB_CONNECTION ?? 'mysql'
+  const db       = process.env.DB_CONNECTION ?? process.env.DB_CLIENT ?? 'mysql'
   const database = process.env.DB_DATABASE   ?? 'darkstar'
 
   info(`Criando banco: ${database}...`)
@@ -16,19 +16,19 @@ export async function dbCreate() {
       const conn = await mysql.createConnection({
         host:     process.env.DB_HOST     ?? '127.0.0.1',
         port:     Number(process.env.DB_PORT ?? 3306),
-        user:     process.env.DB_USERNAME ?? 'root',
+        user:     process.env.DB_USERNAME ?? process.env.DB_USER ?? 'root',
         password: process.env.DB_PASSWORD ?? '',
       })
       await conn.query(`CREATE DATABASE IF NOT EXISTS \`${database}\``)
       await conn.end()
     }
 
-    if (db === 'postgres') {
+    if (db === 'postgres' || db === 'postgresql') {
       const { Client } = await import('pg')
       const client = new Client({
         host:     process.env.DB_HOST     ?? '127.0.0.1',
         port:     Number(process.env.DB_PORT ?? 5432),
-        user:     process.env.DB_USERNAME ?? 'postgres',
+        user:     process.env.DB_USERNAME ?? process.env.DB_USER ?? 'postgres',
         password: process.env.DB_PASSWORD ?? '',
         database: 'postgres',
       })

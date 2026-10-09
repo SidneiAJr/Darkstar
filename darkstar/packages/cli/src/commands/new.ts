@@ -55,12 +55,25 @@ app.boot('/api').then(() => {
 
   // database/seeders/DatabaseSeeder.ts
   write(path.join(projectPath, 'database/seeders/DatabaseSeeder.ts'), `import { Seeder } from './Seeder'
+import { Connection } from '@darkstar-cli/orm'
 
 export class DatabaseSeeder extends Seeder {
   async run(): Promise<void> {
-    // registre seus seeders aqui
+    await Connection.connect()
+    try {
+      // registre seus seeders aqui
+    } finally {
+      await Connection.disconnect()
+    }
   }
 }
+
+new DatabaseSeeder().run()
+  .then(() => process.exit(0))
+  .catch((err) => {
+    console.error(err)
+    process.exit(1)
+  })
 `)
 
   // darkstar.config.ts
@@ -108,7 +121,8 @@ dist/
 `)
 
   // .env.example / .env
-  const env = `DB_CLIENT=mysql
+  const env = `DB_CONNECTION=mysql
+DB_CLIENT=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_USER=root

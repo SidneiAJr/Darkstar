@@ -17,10 +17,10 @@ function writeFile(filePath: string, content: string) {
 }
 
 function stub(name: string): string {
-  return `import { TanisRequest, TanisResponse, NextFunction } from '@darkstar-cli/core'
+  return `import { DarkstarRequest, DarkstarResponse, NextFunction } from '@darkstar-cli/core'
 
 export class ${name}Middleware {
-  handle(req: TanisRequest, res: TanisResponse, next: NextFunction) {
+  handle(req: DarkstarRequest, res: DarkstarResponse, next: NextFunction) {
     next()
   }
 }

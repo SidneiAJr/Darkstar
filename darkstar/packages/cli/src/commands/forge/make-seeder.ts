@@ -1,7 +1,7 @@
 import kleur from 'kleur'
 import * as fs from 'fs'
 import * as path from 'path'
-import { execSync } from 'child_process' // ← adiciona essa linha
+import { execSync } from 'child_process'
 
 function success(msg: string) { console.log(kleur.green('  ✔ ') + msg) }
 function error(msg: string)   { console.log(kleur.red('  ✘ ') + msg) }
@@ -117,15 +117,17 @@ function registerSeeder(seedersDir: string, name: string) {
 
   let content = fs.readFileSync(dbSeederPath, 'utf-8')
 
-  const importLine   = `import { ${name}Seeder } from './${name}Seeder'`
-  const instanceLine = `new ${name}Seeder(),`
+  const importLine = `import { ${name}Seeder } from './${name}Seeder'`
 
   if (content.includes(importLine)) return
 
+  // Adiciona o import no topo
   content = importLine + '\n' + content
+
+  // Adiciona a chamada await dentro do run() — CORRIGIDO
   content = content.replace(
-    /\/\/ registre seus seeders aqui/,
-    `// registre seus seeders aqui\n    ${instanceLine}`
+    /(\/\/ registre seus seeders aqui)/,
+    `$1\n    await new ${name}Seeder().run()`
   )
 
   fs.writeFileSync(dbSeederPath, content, 'utf-8')

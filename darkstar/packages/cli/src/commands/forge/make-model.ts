@@ -16,15 +16,29 @@ function writeFile(filePath: string, content: string) {
   success(`Criado: ${filePath}`)
 }
 
-function stub(name: string): string {
-  const table = name.toLowerCase() + 's'
-  return `import { createModel, Model } from '@darkstar-cli/orm'
-
-class ${name}Model extends Model {
-  static table = '${table}'
+function pluralize(word: string): string {
+  if (word.endsWith('ch') || word.endsWith('sh') || word.endsWith('x') || word.endsWith('z') || word.endsWith('s')) {
+    return word + 'es'
+  }
+  if (word.endsWith('y') && !['ay', 'ey', 'iy', 'oy', 'uy'].some(v => word.endsWith(v))) {
+    return word.slice(0, -1) + 'ies'
+  }
+  return word + 's'
 }
 
-export const ${name} = createModel(${name}Model)
+function stub(name: string): string {
+  const table = pluralize(name.toLowerCase())
+  return `import { Model } from '@darkstar-cli/orm'
+
+export class ${name} extends Model {
+  static table = '${table}'
+
+  /**
+   * Campos que NÃO são retornados nas respostas da API.
+   * Equivalente ao $hidden do Laravel.
+   */
+  static hidden = ['password']
+}
 `
 }
 

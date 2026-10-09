@@ -31,29 +31,32 @@ function controllerStub(name: string): string {
   const lower = name.toLowerCase()
   return `import { DarkstarRequest, DarkstarResponse } from '@darkstar-cli/core'
 import { ${name}Service } from '../services/${name}Service'
+import { ${name} } from '../models/${name}'
 
 export class ${name}Controller {
   constructor(private ${lower}Service: ${name}Service) {}
 
   async index(req: DarkstarRequest, res: DarkstarResponse) {
     const data = await this.${lower}Service.findAll()
-    return res.ok(data)
+    return res.ok(data.map((row: any) => ${name}.omitHidden(row)))
   }
 
   async show(req: DarkstarRequest, res: DarkstarResponse) {
     const data = await this.${lower}Service.findById(req.param('id')!)
     if (!data) return res.notFound('${name} não encontrado')
-    return res.ok(data)
+    return res.ok(${name}.omitHidden(data))
   }
 
   async store(req: DarkstarRequest, res: DarkstarResponse) {
     const data = await this.${lower}Service.create(req.all())
-    return res.created(data)
+    return res.created(${name}.omitHidden(data))
   }
 
   async update(req: DarkstarRequest, res: DarkstarResponse) {
-    const data = await this.${lower}Service.update(req.param('id')!, req.all())
-    return res.ok(data)
+    await this.${lower}Service.update(req.param('id')!, req.all())
+    const data = await this.${lower}Service.findById(req.param('id')!)
+    if (!data) return res.notFound('${name} não encontrado')
+    return res.ok(${name}.omitHidden(data))
   }
 
   async destroy(req: DarkstarRequest, res: DarkstarResponse) {
@@ -99,6 +102,12 @@ function modelStub(name: string): string {
 
 export class ${name} extends Model {
   static table = '${table}'
+
+  /**
+   * Campos que NÃO são retornados nas respostas da API.
+   * Equivalente ao $hidden do Laravel.
+   */
+  static hidden = ['password']
 }
 `
 }

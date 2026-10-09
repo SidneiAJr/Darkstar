@@ -17,35 +17,39 @@ function writeFile(filePath: string, content: string) {
 }
 
 function stub(name: string): string {
+  const lower = name.toLowerCase()
   return `import { DarkstarRequest, DarkstarResponse } from '@darkstar-cli/core'
 import { ${name}Service } from '../services/${name}Service'
+import { ${name} } from '../models/${name}'
 
 export class ${name}Controller {
-  constructor(private ${name.toLowerCase()}Service: ${name}Service) {}
+  constructor(private ${lower}Service: ${name}Service) {}
 
   async index(req: DarkstarRequest, res: DarkstarResponse) {
-    const data = await this.${name.toLowerCase()}Service.findAll()
-    return res.ok(data)
+    const data = await this.${lower}Service.findAll()
+    return res.ok(data.map((row: any) => ${name}.omitHidden(row)))
   }
 
   async show(req: DarkstarRequest, res: DarkstarResponse) {
-    const data = await this.${name.toLowerCase()}Service.findById(req.param('id')!)
+    const data = await this.${lower}Service.findById(req.param('id')!)
     if (!data) return res.notFound('${name} não encontrado')
-    return res.ok(data)
+    return res.ok(${name}.omitHidden(data))
   }
 
   async store(req: DarkstarRequest, res: DarkstarResponse) {
-    const data = await this.${name.toLowerCase()}Service.create(req.all())
-    return res.created(data)
+    const data = await this.${lower}Service.create(req.all())
+    return res.created(${name}.omitHidden(data))
   }
 
   async update(req: DarkstarRequest, res: DarkstarResponse) {
-    const data = await this.${name.toLowerCase()}Service.update(req.param('id')!, req.all())
-    return res.ok(data)
+    await this.${lower}Service.update(req.param('id')!, req.all())
+    const data = await this.${lower}Service.findById(req.param('id')!)
+    if (!data) return res.notFound('${name} não encontrado')
+    return res.ok(${name}.omitHidden(data))
   }
 
   async destroy(req: DarkstarRequest, res: DarkstarResponse) {
-    await this.${name.toLowerCase()}Service.delete(req.param('id')!)
+    await this.${lower}Service.delete(req.param('id')!)
     return res.noContent()
   }
 }
