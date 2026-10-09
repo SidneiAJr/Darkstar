@@ -1,4 +1,4 @@
-import { DarkstarApp } from 'darkstar-core'
+import { DarkstarApp } from '@darkstar-cli/core'
 
 const app = new DarkstarApp()
 

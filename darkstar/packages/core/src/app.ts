@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv'
 import * as fs from 'fs'
 import * as path from 'path'
 import { Route, TanisRouter } from './router'
-import { Connection } from '@darkstar/orm'
+import { Connection } from '@darkstar-cli/orm'
 import kleur from 'kleur'
 
 dotenv.config()

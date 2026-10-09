@@ -18,7 +18,7 @@ function writeFile(filePath: string, content: string) {
 
 function stub(name: string): string {
   const table = name.toLowerCase() + 's'
-  return `import { createModel, Model } from 'darkstar-orm'
+  return `import { createModel, Model } from '@darkstar-cli/orm'
 
 class ${name}Model extends Model {
   static table = '${table}'

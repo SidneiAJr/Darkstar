@@ -48,8 +48,8 @@ function configurePackageJson(projectPath: string, projectName: string) {
   const pkgPath = path.join(projectPath, 'package.json')
 
   const deps: Record<string, string> = {
-    'darkstar-core':       '0.0.1',
-    'darkstar-orm':        '0.0.1',
+    '@darkstar-cli/core':       'latest',
+    '@darkstar-cli/orm':        'latest',
     'dotenv':              'latest',
     'express':             'latest',
     'express-rate-limit':  'latest',
@@ -101,7 +101,7 @@ export async function runNew(name: string) {
     process.exit(1)
   }
 
-  const templatePath = path.resolve(__dirname, '../../templates/project')
+  const templatePath = path.resolve(__dirname, '../../../templates/project')
 
   info('Copiando estrutura do projeto...')
   copyTemplate(templatePath, projectPath)

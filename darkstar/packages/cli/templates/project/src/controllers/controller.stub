@@ -1,4 +1,4 @@
-import { TanisRequest, TanisResponse } from 'darkstar-core'
+import { TanisRequest, TanisResponse } from '@darkstar-cli/core'
 import { {{name}}Service } from '../services/{{name}}Service'
 
 export class {{name}}Controller {

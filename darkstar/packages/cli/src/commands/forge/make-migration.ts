@@ -42,8 +42,8 @@ export function makeMigration(name: string) {
 
   fs.mkdirSync(migrationsDir, { recursive: true })
 
-  const content = `import type { BaseDriver } from 'darkstar-orm'
-import { Schema, Blueprint } from 'darkstar-orm'
+  const content = `import type { BaseDriver } from '@darkstar-cli/orm'
+import { Schema, Blueprint } from '@darkstar-cli/orm'
 
 export async function up(driver: BaseDriver): Promise<void> {
   const schema = new Schema(driver)
