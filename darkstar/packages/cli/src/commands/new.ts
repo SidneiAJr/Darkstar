@@ -8,54 +8,119 @@ function success(msg: string) { log(kleur.green('  ✔ ') + msg) }
 function info(msg: string)    { log(kleur.cyan('  → ') + msg) }
 function error(msg: string)   { log(kleur.red('  ✘ ') + msg) }
 
-function copyTemplate(src: string, dest: string) {
-  if (!fs.existsSync(src)) {
-    error(`Template não encontrado em: ${src}`)
-    process.exit(1)
-  }
-
-  fs.mkdirSync(dest, { recursive: true })
-
-  const entries = fs.readdirSync(src, { withFileTypes: true })
-
-  for (const entry of entries) {
-    if (entry.name.endsWith('.stub')) continue
-
-    const srcPath  = path.join(src, entry.name)
-    const destPath = path.join(dest, entry.name)
-
-    if (entry.isDirectory()) {
-      copyTemplate(srcPath, destPath)
-    } else {
-      const destName = entry.name === 'tanis.config.ts' ? 'darkstar.config.ts' : entry.name
-      fs.copyFileSync(srcPath, path.join(dest, destName))
-    }
-  }
+function write(filePath: string, content: string) {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true })
+  fs.writeFileSync(filePath, content, 'utf-8')
 }
 
-function configureEnv(projectPath: string, projectName: string) {
-  const envPath = path.join(projectPath, '.env.example')
-  if (!fs.existsSync(envPath)) return
-
-  let env = fs.readFileSync(envPath, 'utf-8')
-  env = env.replace(/^DB_DATABASE=.*/m, `DB_DATABASE=${projectName}`)
-
-  fs.writeFileSync(envPath, env, 'utf-8')
-  fs.copyFileSync(envPath, path.join(projectPath, '.env'))
-}
-
-function configurePackageJson(projectPath: string, projectName: string) {
-  const pkgPath = path.join(projectPath, 'package.json')
-
-  const deps: Record<string, string> = {
-    '@darkstar-cli/core':       'latest',
-    '@darkstar-cli/orm':        'latest',
-    'dotenv':              'latest',
-    'express':             'latest',
-    'express-rate-limit':  'latest',
-    'zod':                 'latest',
+function generateStructure(projectPath: string, projectName: string) {
+  // Diretórios vazios (com .gitkeep)
+  const dirs = [
+    'src/controllers',
+    'src/services',
+    'src/repositories',
+    'src/models',
+    'src/routes',
+    'src/schemas',
+    'src/middlewares',
+    'src/utils',
+    'database/migrations',
+    'database/seeders',
+  ]
+  for (const dir of dirs) {
+    const full = path.join(projectPath, dir)
+    fs.mkdirSync(full, { recursive: true })
+    fs.writeFileSync(path.join(full, '.gitkeep'), '')
   }
 
+  // src/core/app.ts
+  write(path.join(projectPath, 'src/core/app.ts'), `import 'dotenv/config'
+import { DarkstarApp } from '@darkstar-cli/core'
+
+const app = new DarkstarApp()
+
+app.boot('/api').then(() => {
+  const port = process.env.PORT ?? 3000
+  app.listen(Number(port), () => {
+    console.log(\`🪐 DarkStar rodando em http://localhost:\${port}\`)
+  })
+})
+`)
+
+  // database/seeders/Seeder.ts
+  write(path.join(projectPath, 'database/seeders/Seeder.ts'), `export abstract class Seeder {
+  abstract run(): Promise<void>
+}
+`)
+
+  // database/seeders/DatabaseSeeder.ts
+  write(path.join(projectPath, 'database/seeders/DatabaseSeeder.ts'), `import { Seeder } from './Seeder'
+
+export class DatabaseSeeder extends Seeder {
+  async run(): Promise<void> {
+    // registre seus seeders aqui
+  }
+}
+`)
+
+  // darkstar.config.ts
+  write(path.join(projectPath, 'darkstar.config.ts'), `import type { DarkstarConfig } from '@darkstar-cli/core'
+
+const config: DarkstarConfig = {
+  db: {
+    client:   process.env.DB_CLIENT   as 'mysql' | 'pg' | 'sqlite3' ?? 'mysql',
+    host:     process.env.DB_HOST     ?? '127.0.0.1',
+    port:     Number(process.env.DB_PORT ?? 3306),
+    user:     process.env.DB_USER     ?? 'root',
+    password: process.env.DB_PASSWORD ?? '',
+    database: process.env.DB_DATABASE ?? '${projectName}',
+  },
+}
+
+export default config
+`)
+
+  // tsconfig.json
+  write(path.join(projectPath, 'tsconfig.json'), JSON.stringify({
+    compilerOptions: {
+      target: 'ES2020',
+      module: 'commonjs',
+      lib: ['ES2020'],
+      outDir: './dist',
+      rootDir: './src',
+      strict: true,
+      esModuleInterop: true,
+      skipLibCheck: true,
+      forceConsistentCasingInFileNames: true,
+      resolveJsonModule: true,
+      emitDecoratorMetadata: false,
+      experimentalDecorators: false,
+    },
+    include: ['src/**/*', 'darkstar.config.ts'],
+    exclude: ['node_modules', 'dist'],
+  }, null, 2))
+
+  // .gitignore
+  write(path.join(projectPath, '.gitignore'), `node_modules/
+dist/
+.env
+*.log
+`)
+
+  // .env.example / .env
+  const env = `DB_CLIENT=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=
+DB_DATABASE=${projectName}
+PORT=3000
+`
+  write(path.join(projectPath, '.env.example'), env)
+  write(path.join(projectPath, '.env'), env)
+}
+
+function generatePackageJson(projectPath: string, projectName: string) {
   const pkg = {
     name: projectName,
     version: '0.0.1',
@@ -66,7 +131,14 @@ function configurePackageJson(projectPath: string, projectName: string) {
       build: 'tsc',
       start: 'node dist/core/app.js',
     },
-    dependencies: deps,
+    dependencies: {
+      '@darkstar-cli/core':      'latest',
+      '@darkstar-cli/orm':       'latest',
+      'dotenv':                  'latest',
+      'express':                 'latest',
+      'express-rate-limit':      'latest',
+      'zod':                     'latest',
+    },
     devDependencies: {
       '@types/express':            'latest',
       '@types/express-rate-limit': 'latest',
@@ -75,8 +147,7 @@ function configurePackageJson(projectPath: string, projectName: string) {
       'typescript':                'latest',
     },
   }
-
-  fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2), 'utf-8')
+  write(path.join(projectPath, 'package.json'), JSON.stringify(pkg, null, 2))
 }
 
 function installDeps(projectPath: string) {
@@ -101,18 +172,12 @@ export async function runNew(name: string) {
     process.exit(1)
   }
 
-  const templatePath = path.resolve(__dirname, '../../../templates/project')
-
-  info('Copiando estrutura do projeto...')
-  copyTemplate(templatePath, projectPath)
+  info('Gerando estrutura do projeto...')
+  generateStructure(projectPath, name)
   success('Estrutura criada')
 
-  info('Configurando .env...')
-  configureEnv(projectPath, name)
-  success('.env configurado')
-
   info('Configurando package.json...')
-  configurePackageJson(projectPath, name)
+  generatePackageJson(projectPath, name)
   success('package.json configurado')
 
   installDeps(projectPath)
