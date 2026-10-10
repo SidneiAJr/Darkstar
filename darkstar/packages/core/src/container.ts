@@ -50,7 +50,7 @@ export class TanisContainer {
 
     const params = match[1]
       .split(',')
-      .map(p => p.trim().replace(/^private\s+|^public\s+|^protected\s+|^readonly\s+/g, ''))
+      .map(p => p.trim().replace(/^(?:private|public|protected|readonly)\s+/, ''))
       .map(p => p.split(':')[0].trim()) // remove tipo TypeScript
       .filter(Boolean)
 
