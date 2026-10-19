@@ -2,10 +2,6 @@ import { Connection } from './connection'
 import { QueryBuilder } from './query-builder'
 import type { RelationDefinition, RelationsMap } from './types'
 
-// -----------------------------------------------
-// Model base
-// -----------------------------------------------
-
 export class Model {
   static table: string = ''
 
@@ -16,8 +12,13 @@ export class Model {
   static hidden: string[] = []
 
   /**
+   * Habilita soft delete — filtra deleted_at IS NULL automaticamente.
+   * Equivalente ao `SoftDeletes` trait do Laravel.
+   */
+  static softDelete: boolean = false
+
+  /**
    * Relações declaradas neste model.
-   * Equivalente aos métodos `hasMany`, `belongsTo` do Laravel.
    */
   static relations: RelationsMap = {}
 
@@ -31,7 +32,7 @@ export class Model {
   }
 
   static async findAll<T extends typeof Model>(this: T): Promise<InstanceType<T>[]> {
-    return this.query<T>().all()
+    return this.query<T>().get()
   }
 
   static async findById<T extends typeof Model>(
@@ -39,6 +40,13 @@ export class Model {
     id: number | string
   ): Promise<InstanceType<T> | null> {
     return this.query<T>().find(id)
+  }
+
+  static async findOrFail<T extends typeof Model>(
+    this: T,
+    id: number | string
+  ): Promise<InstanceType<T>> {
+    return this.query<T>().findOrFail(id)
   }
 
   static async findBy<T extends typeof Model>(
@@ -57,6 +65,38 @@ export class Model {
     return this.query<T>().where(column, value).first()
   }
 
+  static async firstOrCreate<T extends typeof Model>(
+    this: T,
+    search: Partial<InstanceType<T>>,
+    data: Partial<InstanceType<T>> = {}
+  ): Promise<InstanceType<T>> {
+    let record = this.query<T>()
+    for (const [col, val] of Object.entries(search)) {
+      record = record.where(col, val) as any
+    }
+    const found = await record.first()
+    if (found) return found
+    return this.query<T>().create({ ...search, ...data })
+  }
+
+  static async updateOrCreate<T extends typeof Model>(
+    this: T,
+    search: Partial<InstanceType<T>>,
+    data: Partial<InstanceType<T>>
+  ): Promise<InstanceType<T>> {
+    let record = this.query<T>()
+    for (const [col, val] of Object.entries(search)) {
+      record = record.where(col, val) as any
+    }
+    const found = await record.first()
+    if (found) {
+      const id = (found as any).id
+      await this.query<T>().where('id', id).update(data)
+      return this.query<T>().findOrFail(id)
+    }
+    return this.query<T>().create({ ...search, ...data })
+  }
+
   static async create<T extends typeof Model>(
     this: T,
     data: Partial<InstanceType<T>>
@@ -64,12 +104,20 @@ export class Model {
     return this.query<T>().create(data)
   }
 
+  static async createMany<T extends typeof Model>(
+    this: T,
+    rows: Partial<InstanceType<T>>[]
+  ): Promise<number> {
+    return this.query<T>().createMany(rows)
+  }
+
   static async update<T extends typeof Model>(
     this: T,
     id: number | string,
     data: Partial<InstanceType<T>>
   ): Promise<InstanceType<T> | null> {
-    return this.query<T>().where('id', id).update(data) as Promise<InstanceType<T> | null>
+    await this.query<T>().where('id', id).update(data)
+    return this.query<T>().find(id)
   }
 
   static async delete<T extends typeof Model>(
@@ -80,13 +128,28 @@ export class Model {
   }
 
   // -----------------------------------------------
-  // Hidden fields (Laravel-style)
+  // Soft delete
   // -----------------------------------------------
 
-  /**
-   * Remove campos declarados em `static hidden`.
-   * Equivalente ao `$hidden` do Laravel.
-   */
+  static async restore<T extends typeof Model>(
+    this: T,
+    id: number | string
+  ): Promise<number> {
+    return this.query<T>().withTrashed().where('id', id).restore()
+  }
+
+  static withTrashed<T extends typeof Model>(this: T): QueryBuilder<InstanceType<T>> {
+    return this.query<T>().withTrashed()
+  }
+
+  static onlyTrashed<T extends typeof Model>(this: T): QueryBuilder<InstanceType<T>> {
+    return this.query<T>().onlyTrashed()
+  }
+
+  // -----------------------------------------------
+  // Hidden fields
+  // -----------------------------------------------
+
   static omitHidden<T extends Record<string, any>>(obj: T): T {
     const hidden = this.hidden
     if (!hidden || hidden.length === 0) return obj
@@ -100,9 +163,6 @@ export class Model {
   // Relations
   // -----------------------------------------------
 
-  /**
-   * Retorna a definição de uma relação.
-   */
   static getRelation(name: string): RelationDefinition {
     const relation = this.relations[name]
     if (!relation) {
@@ -111,26 +171,13 @@ export class Model {
     return relation
   }
 
-  /**
-   * Eager loading — carrega uma relação pra um array de rows.
-   * Usa 2 queries no total (evita N+1).
-   *
-   * Suporta:
-   *   hasOne        → 1 pra 1
-   *   hasMany       → 1 pra N
-   *   belongsTo     → N pra 1
-   *   belongsToMany → N pra N
-   */
   static async loadRelation(rows: any[], relationName: string): Promise<void> {
     if (rows.length === 0) return
 
-    const relation = this.getRelation(relationName)
+    const relation    = this.getRelation(relationName)
     const RelatedModel = relation.model()
 
-    // -----------------------------------------------
     // belongsTo — N pra 1
-    // Cada row tem o FK, busca 1
-    // -----------------------------------------------
     if (relation.type === 'belongsTo') {
       const fk       = relation.foreignKey ?? `${RelatedModel.name.toLowerCase()}_id`
       const ownerKey = relation.ownerKey   ?? 'id'
@@ -143,15 +190,11 @@ export class Model {
 
       const related = await RelatedModel.query().whereIn(ownerKey, ids).get()
       const map = new Map(related.map((r: any) => [r[ownerKey], r]))
-
       rows.forEach(r => { r[relationName] = map.get(r[fk]) ?? null })
       return
     }
 
-    // -----------------------------------------------
     // hasOne / hasMany — 1 pra 1 ou 1 pra N
-    // Busca N do outro lado, agrupa pelo FK
-    // -----------------------------------------------
     if (relation.type === 'hasOne' || relation.type === 'hasMany') {
       const fk       = relation.foreignKey ?? `${this.name.toLowerCase()}_id`
       const localKey = relation.localKey   ?? 'id'
@@ -178,19 +221,13 @@ export class Model {
       return
     }
 
-    // -----------------------------------------------
-    // belongsToMany — N pra N via pivot table
-    // -----------------------------------------------
+    // belongsToMany — N pra N via pivot
     if (relation.type === 'belongsToMany') {
-      const RelatedTable = RelatedModel.table
-      const pivotTable = relation.pivotTable
-        ?? [this.table, RelatedTable].sort().join('_')
-
-      const pivotForeignKey = relation.pivotForeignKey
-        ?? `${this.name.toLowerCase()}_id`
-      const pivotRelatedKey = relation.pivotRelatedKey
-        ?? `${RelatedModel.name.toLowerCase()}_id`
-      const ownerKey = relation.ownerKey ?? 'id'
+      const RelatedTable    = RelatedModel.table
+      const pivotTable      = relation.pivotTable ?? [this.table, RelatedTable].sort().join('_')
+      const pivotForeignKey = relation.pivotForeignKey ?? `${this.name.toLowerCase()}_id`
+      const pivotRelatedKey = relation.pivotRelatedKey ?? `${RelatedModel.name.toLowerCase()}_id`
+      const ownerKey        = relation.ownerKey ?? 'id'
 
       const ids = [...new Set(rows.map(r => r[ownerKey]).filter(Boolean))]
       if (ids.length === 0) {
@@ -198,8 +235,7 @@ export class Model {
         return
       }
 
-      // Query 1 — pega os pares da pivot
-      const driver = Connection.get()
+      const driver       = Connection.get()
       const placeholders = ids.map(() => '?').join(', ')
       const { rows: pivotRows } = await driver.query(
         `SELECT * FROM ${pivotTable} WHERE ${pivotForeignKey} IN (${placeholders})`,
@@ -212,11 +248,9 @@ export class Model {
         return
       }
 
-      // Query 2 — pega os models relacionados
-      const related = await RelatedModel.query().whereIn(ownerKey, relatedIds).get()
+      const related    = await RelatedModel.query().whereIn(ownerKey, relatedIds).get()
       const relatedMap = new Map(related.map((r: any) => [r[ownerKey], r]))
 
-      // Agrupa em memória
       const grouped = new Map<any, any[]>()
       for (const p of pivotRows) {
         const key = p[pivotForeignKey]
@@ -231,9 +265,6 @@ export class Model {
     }
   }
 
-  /**
-   * Carrega múltiplas relações em sequência.
-   */
   static async loadRelations(rows: any[], relationNames: string[]): Promise<void> {
     for (const name of relationNames) {
       await this.loadRelation(rows, name)
