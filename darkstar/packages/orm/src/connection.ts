@@ -6,15 +6,10 @@ import { PostgresDriver } from './drivers/postgres-driver'
 
 dotenv.config()
 
-// -----------------------------------------------
-// Connection — lê .env e instancia o driver certo
-// -----------------------------------------------
-
 export class Connection {
   private static driver: BaseDriver | null = null
 
   static async connect(): Promise<void> {
-    // Aceita DB_CONNECTION (padrão novo) ou DB_CLIENT (legado)
     const db = process.env.DB_CONNECTION
             ?? process.env.DB_CLIENT
             ?? 'sqlite'
@@ -29,7 +24,6 @@ export class Connection {
         host:     process.env.DB_HOST     ?? '127.0.0.1',
         port:     Number(process.env.DB_PORT ?? 3306),
         database: process.env.DB_DATABASE ?? 'darkstar',
-        // Aceita DB_USERNAME ou DB_USER
         user:     process.env.DB_USERNAME ?? process.env.DB_USER ?? 'root',
         password: process.env.DB_PASSWORD ?? '',
       })
@@ -38,7 +32,6 @@ export class Connection {
         host:     process.env.DB_HOST     ?? '127.0.0.1',
         port:     Number(process.env.DB_PORT ?? 5432),
         database: process.env.DB_DATABASE ?? 'darkstar',
-        // Aceita DB_USERNAME ou DB_USER
         user:     process.env.DB_USERNAME ?? process.env.DB_USER ?? 'postgres',
         password: process.env.DB_PASSWORD ?? '',
       })
@@ -66,5 +59,57 @@ export class Connection {
 
   static async ping(): Promise<boolean> {
     return this.driver?.ping() ?? false
+  }
+
+  // -----------------------------------------------
+  // Transações
+  // -----------------------------------------------
+
+  static async transaction<T>(
+    callback: (driver: BaseDriver) => Promise<T>
+  ): Promise<T> {
+    const driver = this.get()
+    const db = driver.type()
+
+    if (db === 'mysql' || db === 'mariadb') {
+      const conn = await driver.getConnection!()
+      try {
+        await conn.query('START TRANSACTION')
+        const result = await callback(driver)
+        await conn.query('COMMIT')
+        return result
+      } catch (err) {
+        await conn.query('ROLLBACK')
+        throw err
+      } finally {
+        await driver.releaseConnection!(conn)
+      }
+    }
+
+    if (db === 'postgres') {
+      try {
+        await driver.query('BEGIN')
+        const result = await callback(driver)
+        await driver.query('COMMIT')
+        return result
+      } catch (err) {
+        await driver.query('ROLLBACK')
+        throw err
+      }
+    }
+
+    if (db === 'sqlite') {
+      try {
+        await driver.query('BEGIN')
+        const result = await callback(driver)
+        await driver.query('COMMIT')
+        return result
+      } catch (err) {
+        await driver.query('ROLLBACK')
+        throw err
+      }
+    }
+
+    throw new Error(`[DarkStar ORM] Transações não suportadas para o driver: ${db}`)
   }
 }

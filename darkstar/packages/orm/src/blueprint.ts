@@ -10,7 +10,7 @@ export interface ColumnDefinition {
   length?: number
   precision?: number
   scale?: number
-  values?: string[]           // para ENUM
+  values?: string[]
   references?: { table: string; column: string }
   onDelete?: 'CASCADE' | 'SET NULL' | 'RESTRICT' | 'NO ACTION'
   onUpdate?: 'CASCADE' | 'SET NULL' | 'RESTRICT' | 'NO ACTION'
@@ -115,7 +115,8 @@ export class Blueprint {
   // ========================
 
   boolean(name: string): ColumnBuilder {
-    return this._addColumn({ name, type: 'TINYINT', length: 1, nullable: false, unique: false })
+    // O Schema vai traduzir pra BOOLEAN no Postgres, TINYINT(1) no MySQL
+    return this._addColumn({ name, type: 'BOOLEAN', nullable: false, unique: false })
   }
 
   // ========================
@@ -142,21 +143,21 @@ export class Blueprint {
     return this._addColumn({ name, type: 'TIME', nullable: false, unique: false })
   }
 
-  // created_at e updated_at — igual Laravel
+  // created_at e updated_at — o Schema trata o updated_at por banco via trigger
   timestamps(): this {
     this.columns.push({
       name: 'created_at',
       type: 'TIMESTAMP',
-      nullable: false,
+      nullable: true,
       unique: false,
       default: 'CURRENT_TIMESTAMP',
     })
     this.columns.push({
       name: 'updated_at',
       type: 'TIMESTAMP',
-      nullable: false,
+      nullable: true,
       unique: false,
-      default: 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
+      default: undefined,
     })
     return this
   }
@@ -201,7 +202,6 @@ export class Blueprint {
     return new ForeignKeyBuilder(col)
   }
 
-  // nullable foreignId — útil pra relações opcionais
   nullableForeignId(name: string): ForeignKeyBuilder {
     const col: ColumnDefinition = {
       name,
@@ -256,7 +256,6 @@ export class ColumnBuilder {
     return this
   }
 
-  // alias útil
   index(): this {
     return this
   }
@@ -276,7 +275,6 @@ export class ForeignKeyBuilder extends ColumnBuilder {
     }
   }
 
-  // ações referenciais
   onDelete(action: ColumnDefinition['onDelete']): this {
     this.col.onDelete = action
     return this
@@ -287,7 +285,6 @@ export class ForeignKeyBuilder extends ColumnBuilder {
     return this
   }
 
-  // atalhos comuns
   cascadeOnDelete(): this {
     this.col.onDelete = 'CASCADE'
     return this
